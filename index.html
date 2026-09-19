@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMM Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;500;600;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F7F2E6; --bg-panel:#FDFBF5; --ink:#1C2430; --ink-soft:#66707D;
+  --forest:#17304A; --sage:#7B8FA3; --gold:#A96A2E; --line:#DED2BA;
+  --easy:#4E7C63; --doable:#A96A2E; --challenge:#B1592B; --impossible:#8C3A3A;
+  --font-head:'Spectral', serif; --font-body:'Work Sans', system-ui, sans-serif;
+}
+:root:not([data-theme="light"]) { }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#161B22; --bg-panel:#1E2530; --ink:#EDE7D9; --ink-soft:#9AA3AD;
+    --forest:#DCE4EE; --line:#333C48;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#161B22; --bg-panel:#1E2530; --ink:#EDE7D9; --ink-soft:#9AA3AD;
+  --forest:#DCE4EE; --line:#333C48;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0; background-color:var(--bg); color:var(--ink); font-family:var(--font-body);
+  background-image:repeating-linear-gradient(to bottom, transparent, transparent 26px, rgba(23,48,74,0.05) 27px);
+  background-attachment:local;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:760px; margin:0 auto; padding:28px 20px 80px;}
+header.top{margin-bottom:22px;}
+h1{font-family:var(--font-head); font-weight:600; font-size:2.1rem; margin:0 0 4px; color:var(--forest); letter-spacing:-0.01em;}
+.sub{color:var(--ink-soft); font-size:0.95rem; margin:0 0 18px; max-width:52ch;}
+.stats{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:6px;}
+.stat{background:var(--bg-panel); border:1px solid var(--line); border-radius:8px; padding:10px 14px; min-width:118px;}
+.stat .num{font-family:var(--font-head); font-size:1.5rem; font-weight:600; color:var(--forest);}
+.stat .lbl{font-size:0.72rem; color:var(--ink-soft); margin-top:2px;}
+nav.tabs{display:flex; gap:2px; margin:26px 0 20px; border-bottom:1px solid var(--line);}
+nav.tabs button{
+  background:none; border:none; font-family:var(--font-body); font-size:0.92rem; font-weight:500;
+  color:var(--ink-soft); padding:10px 4px; margin-right:22px; cursor:pointer; border-bottom:2px solid transparent;
+}
+nav.tabs button.active{color:var(--forest); border-bottom-color:var(--gold);}
+.panel{display:none;}
+.panel.active{display:block;}
+.field-row{display:flex; gap:12px; align-items:center; margin-bottom:16px; flex-wrap:wrap;}
+label.small{font-size:0.8rem; color:var(--ink-soft);}
+input[type=date], select, input[type=number], input[type=text], textarea{
+  font-family:var(--font-body); border:1px solid var(--line); background:var(--bg-panel); color:var(--ink);
+  border-radius:8px; padding:7px 9px; font-size:0.9rem;
+}
+input:focus, select:focus, textarea:focus{outline:2px solid var(--gold); outline-offset:1px;}
+.ex-row, .test-row{border-top:1px solid var(--line); padding:14px 0; display:grid; grid-template-columns:1fr; gap:8px;}
+.ex-row:first-of-type, .test-row:first-of-type{border-top:none;}
+.ex-name{font-weight:600; font-size:0.96rem;}
+.ex-scheme{font-size:0.78rem; color:var(--ink-soft);}
+.ex-controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+.diff-btns{display:flex; gap:6px;}
+.diff-btns button{
+  font-size:0.76rem; padding:6px 10px; border-radius:14px; border:1px solid var(--line); background:var(--bg-panel);
+  color:var(--ink-soft); cursor:pointer;
+}
+.diff-btns button.sel[data-d="Easy"]{background:var(--easy); color:#fff; border-color:var(--easy);}
+.diff-btns button.sel[data-d="Do-able"]{background:var(--doable); color:#fff; border-color:var(--doable);}
+.diff-btns button.sel[data-d="Challenging"]{background:var(--challenge); color:#fff; border-color:var(--challenge);}
+.diff-btns button.sel[data-d="Impossible"]{background:var(--impossible); color:#fff; border-color:var(--impossible);}
+.note-input{flex:1; min-width:140px;}
+.test-name{font-weight:600; font-size:0.96rem;}
+.score-inputs{display:flex; gap:10px; align-items:center;}
+.score-inputs input[type=number]{width:58px;}
+.score-inputs label{font-size:0.75rem; color:var(--ink-soft); margin-right:2px;}
+.save-bar{position:sticky; bottom:0; background:var(--bg); padding:14px 0 4px; border-top:1px solid var(--line); margin-top:20px;}
+button.primary{
+  background:var(--forest); color:var(--bg); border:none; border-radius:8px; padding:11px 22px;
+  font-family:var(--font-body); font-weight:600; font-size:0.92rem; cursor:pointer;
+}
+button.primary:hover{opacity:0.9;}
+.hint{font-size:0.78rem; color:var(--ink-soft); margin-top:8px;}
+.hist-item{border-top:1px solid var(--line); padding:12px 0;}
+.hist-item:first-of-type{border-top:none;}
+.hist-date{font-weight:600; font-size:0.9rem;}
+.hist-meta{font-size:0.8rem; color:var(--ink-soft); margin-top:2px;}
+.empty{color:var(--ink-soft); font-size:0.9rem; padding:20px 0;}
+select#chartTest{margin-bottom:14px;}
+
+/* Guided flow overlay (shared by session + tests) */
+.overlay{display:none; position:fixed; inset:0; background:var(--bg); z-index:100; overflow-y:auto;}
+.overlay.open{display:block;}
+.ov-wrap{max-width:620px; margin:0 auto; padding:20px 20px 60px;}
+.ov-top{display:flex; align-items:center; gap:12px; margin-bottom:22px;}
+.ov-progress{flex:1; height:5px; background:var(--line); border-radius:8px; overflow:hidden;}
+.ov-progress-fill{height:100%; background:var(--gold); width:0%; transition:width .25s ease;}
+.ov-progress-text{font-size:0.78rem; color:var(--ink-soft); white-space:nowrap;}
+.ov-close{background:none; border:1px solid var(--line); border-radius:8px; color:var(--ink-soft); font-size:0.78rem; padding:5px 10px; cursor:pointer;}
+.ov-exname{font-family:var(--font-head); font-weight:600; font-size:1.7rem; color:var(--forest); margin:0 0 4px;}
+.ov-scheme{font-size:0.85rem; color:var(--ink-soft); margin-bottom:18px;}
+.ov-last{background:var(--bg-panel); border:1px solid var(--line); border-radius:8px; padding:9px 12px; font-size:0.82rem; color:var(--ink-soft); margin-bottom:16px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+.ov-last b{color:var(--ink); font-weight:600;}
+.ov-reps-block{margin-bottom:16px;}
+.ov-reps-block > label{font-size:0.8rem; color:var(--ink-soft); display:block; margin-bottom:6px;}
+.ov-reps-block .target{color:var(--ink-soft); font-weight:400;}
+.ov-reps-row{display:flex; gap:14px; flex-wrap:wrap;}
+.ov-reps-field{display:flex; align-items:center; gap:8px; background:var(--bg-panel); border:1px solid var(--line); border-radius:20px; padding:4px 6px;}
+.ov-reps-field .side-lbl{font-size:0.78rem; color:var(--ink-soft); padding-left:6px;}
+.ov-reps-field button{width:26px; height:26px; border-radius:50%; border:1px solid var(--line); background:var(--bg); color:var(--ink); font-size:1rem; line-height:1; cursor:pointer;}
+.ov-reps-field input{width:38px; text-align:center; border:none; background:none; font-family:var(--font-head); font-weight:600; font-size:1.05rem; color:var(--forest); -moz-appearance:textfield;}
+.ov-reps-field input::-webkit-outer-spin-button, .ov-reps-field input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
+.pose-wrap{width:120px; height:120px; margin:0 auto 16px; background:var(--bg-panel); border:1px solid var(--line); border-radius:6px; padding:6px;}
+.pose-svg{width:100%; height:100%; display:block;}
+.ref-img-empty{display:flex; align-items:center; justify-content:center; height:120px; border:1px dashed var(--line); border-radius:6px; color:var(--ink-soft); font-size:0.85rem; cursor:pointer; margin-bottom:16px; background:var(--bg-panel);}
+.ref-img-empty:hover{color:var(--forest); border-color:var(--gold);}
+.ref-img-wrap{margin-bottom:16px;}
+.ref-img-wrap img{width:100%; max-height:280px; object-fit:cover; border-radius:6px; border:1px solid var(--line); display:block;}
+.ref-img-actions{display:flex; gap:8px; margin-top:6px;}
+.ref-img-btn{font-size:0.76rem; padding:5px 11px; border-radius:14px; border:1px solid var(--line); background:var(--bg-panel); color:var(--ink-soft); cursor:pointer;}
+.ref-img-btn.ref-remove{border:none; background:none; text-decoration:underline;}
+.wk-target{font-weight:400; opacity:0.7;}
+.week-progress{height:8px; background:var(--line); border-radius:4px; overflow:hidden; margin:2px 0 8px;}
+.week-progress-fill{height:100%; background:var(--sage); width:0%; transition:width .25s ease;}
+.secondary-btn{background:none; border:1px solid var(--line); color:var(--ink); border-radius:8px; padding:11px 22px; font-family:var(--font-body); font-weight:600; font-size:0.92rem; cursor:pointer; display:inline-block;}
+.hist-actions{display:flex; gap:6px; flex-shrink:0;}
+.hist-actions button{background:none; border:none; color:var(--ink-soft); font-size:0.76rem; text-decoration:underline; cursor:pointer; padding:2px;}
+.hist-item{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+.hist-item-main{flex:1; min-width:0;}
+.weak-link{background:var(--bg-panel); border-left:3px solid var(--challenge); border-radius:8px; padding:10px 14px; font-size:0.85rem; margin-bottom:16px;}
+.resume-banner{background:var(--bg-panel); border-left:3px solid var(--gold); border-radius:8px; padding:14px; margin-bottom:18px;}
+.resume-banner p{font-size:0.88rem; margin:0 0 12px;}
+.resume-banner-actions{display:flex; gap:10px; flex-wrap:wrap;}
+.asym-flag{background:var(--bg-panel); border-left:3px solid var(--challenge); border-radius:8px; padding:10px 14px; font-size:0.85rem; margin-bottom:8px;}
+.asym-flag b{color:var(--forest);}
+.ov-cues{margin:0 0 16px; padding-left:20px;}
+.ov-cues li{margin-bottom:6px; font-size:0.92rem; line-height:1.45;}
+.ov-toggle{background:none; border:none; color:var(--gold); font-family:var(--font-body); font-size:0.85rem; font-weight:600; cursor:pointer; padding:0 0 14px; text-decoration:underline;}
+.ov-regress{display:none; margin:0 0 18px; padding:12px 14px; background:var(--bg-panel); border:1px solid var(--line); border-radius:8px;}
+.ov-regress.open{display:block;}
+.ov-regress p{margin:0 0 6px; font-size:0.8rem; font-weight:600; color:var(--ink-soft);}
+.ov-regress ul{margin:0; padding-left:18px;}
+.ov-regress li{font-size:0.86rem; margin-bottom:4px;}
+.ov-rate-label{font-size:0.8rem; color:var(--ink-soft); margin-bottom:8px;}
+.ov-diffs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;}
+.ov-diffs button{font-size:0.85rem; padding:9px 14px; border-radius:16px; border:1px solid var(--line); background:var(--bg-panel); color:var(--ink-soft); cursor:pointer;}
+.ov-diffs button.sel[data-d="Easy"]{background:var(--easy); color:#fff; border-color:var(--easy);}
+.ov-diffs button.sel[data-d="Do-able"]{background:var(--doable); color:#fff; border-color:var(--doable);}
+.ov-diffs button.sel[data-d="Challenging"]{background:var(--challenge); color:#fff; border-color:var(--challenge);}
+.ov-diffs button.sel[data-d="Impossible"]{background:var(--impossible); color:#fff; border-color:var(--impossible);}
+.ov-note{width:100%; margin-bottom:20px;}
+.ov-nav{display:flex; gap:10px;}
+.ov-nav button.secondary{background:none; border:1px solid var(--line); color:var(--ink); border-radius:8px; padding:11px 18px; font-family:var(--font-body); font-size:0.9rem; cursor:pointer;}
+.sum-title{font-family:var(--font-head); font-weight:600; font-size:1.5rem; color:var(--forest); margin:0 0 16px;}
+.sum-row{display:flex; justify-content:space-between; gap:10px; border-top:1px solid var(--line); padding:10px 0; font-size:0.88rem;}
+.sum-row:first-of-type{border-top:none;}
+.sum-chip{font-size:0.72rem; padding:3px 9px; border-radius:12px; color:#fff; white-space:nowrap;}
+.sum-chip.Easy{background:var(--easy);} .sum-chip.Do-able{background:var(--doable);}
+.sum-chip.Challenging{background:var(--challenge);} .sum-chip.Impossible{background:var(--impossible);}
+.sum-chip.none{background:var(--line); color:var(--ink-soft);}
+.ov-guide{display:flex; justify-content:space-between; gap:8px; font-size:0.72rem; color:var(--ink-soft); margin:-4px 0 2px;}
+.ov-guide span{max-width:33%;}
+.ov-score-block{margin-bottom:18px;}
+.ov-score-block label{font-size:0.8rem; color:var(--ink-soft); display:block; margin-bottom:4px;}
+.ov-score-row{display:flex; align-items:center; gap:12px;}
+.ov-score-row input[type=range]{flex:1; accent-color:var(--gold);}
+.ov-score-val{font-family:var(--font-head); font-weight:600; font-size:1.2rem; color:var(--forest); width:28px; text-align:right;}
+
+/* Tip card */
+.tip-card{position:relative; background:var(--bg-panel); border:1px solid var(--line); border-left:3px solid var(--gold); border-radius:8px; padding:12px 40px 12px 14px; margin-top:16px;}
+.tip-label{font-size:0.68rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:3px;}
+.tip-text{font-size:0.86rem; line-height:1.4;}
+.tip-shuffle{position:absolute; top:10px; right:10px; background:none; border:none; color:var(--ink-soft); font-size:1rem; cursor:pointer; padding:4px 6px; line-height:1;}
+.tip-shuffle:hover{color:var(--forest);}
+
+/* Calendar */
+.cal-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+.cal-header .secondary{padding:5px 12px;}
+.cal-label{font-family:var(--font-head); font-weight:600; font-size:1rem; color:var(--forest);}
+.cal-dow{display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:0.7rem; color:var(--ink-soft); margin-bottom:4px;}
+.cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px;}
+.cal-day{aspect-ratio:1; display:flex; align-items:center; justify-content:center; font-size:0.78rem; border-radius:50%; color:var(--ink-soft); position:relative;}
+.cal-day.empty{visibility:hidden;}
+.cal-day.done{background:var(--sage); color:#fff; font-weight:600;}
+.cal-day.today{box-shadow:0 0 0 2px var(--gold) inset;}
+svg.chart{width:100%; height:200px; overflow:visible;}
+.chart-legend{display:flex; gap:16px; font-size:0.78rem; color:var(--ink-soft); margin-top:6px;}
+.legend-dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:4px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>SMM Tracker</h1>
+    <p class="sub">A place to log your Simplistic Mobility Method sessions and retests, so progress isn't just a feeling.</p>
+    <div class="stats">
+      <div class="stat"><div class="num" id="statStreak">0</div><div class="lbl">day streak</div></div>
+      <div class="stat"><div class="num" id="statSessions">0</div><div class="lbl">sessions logged</div></div>
+      <div class="stat"><div class="num" id="statLast">–</div><div class="lbl">last session</div></div>
+      <div class="stat"><div class="num" id="statRetest">–</div><div class="lbl">next retest</div></div>
+    </div>
+    <div class="tip-card" id="tipCard">
+      <div class="tip-label">From the booklet</div>
+      <div class="tip-text" id="tipText"></div>
+      <button type="button" class="tip-shuffle" id="tipShuffle" aria-label="Show another tip">↻</button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button data-tab="log" class="active">Log a Session</button>
+    <button data-tab="tests">Tests</button>
+    <button data-tab="history">History</button>
+  </nav>
+
+  <section id="tab-log" class="panel active">
+    <div id="preSession">
+      <div class="weak-link" id="weakLinkBox" style="display:none;"></div>
+      <div class="resume-banner" id="exportReminderBox" style="display:none;">
+        <p></p>
+        <div class="resume-banner-actions">
+          <button type="button" class="primary" id="exportReminderBtn">Export now</button>
+        </div>
+      </div>
+      <div class="resume-banner" id="sessionResumeBanner" style="display:none;">
+        <p id="sessionResumeText"></p>
+        <div class="resume-banner-actions">
+          <button type="button" class="primary" id="resumeSessionBtn">Resume session</button>
+          <button type="button" class="secondary-btn" id="discardSessionBtn">Discard & start new</button>
+        </div>
+      </div>
+      <div id="preSessionNormal">
+        <label class="small">Date<br><input type="date" id="sessionDate"></label>
+        <p class="hint" style="margin:14px 0 20px;">15 exercises, in order — the SMM booklet asks you not to split them up or skip any. You'll get the cues, look-fors and easier options for each one as you go, mark it done, and move on.</p>
+        <button class="primary" id="startSession">Start session</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="sessionOverlay" class="overlay">
+    <div class="ov-wrap">
+      <div class="ov-top">
+        <div class="ov-progress"><div class="ov-progress-fill" id="ovFill"></div></div>
+        <div class="ov-progress-text" id="ovStep">1 / 15</div>
+        <button class="ov-close" id="ovClose" aria-label="Exit session">Exit</button>
+      </div>
+      <div id="ovBody"></div>
+      <div id="ovSummary" style="display:none;"></div>
+    </div>
+  </div>
+
+  <section id="tab-tests" class="panel">
+    <div id="preTest">
+      <div class="resume-banner" id="testResumeBanner" style="display:none;">
+        <p id="testResumeText"></p>
+        <div class="resume-banner-actions">
+          <button type="button" class="primary" id="resumeTestsBtn">Resume tests</button>
+          <button type="button" class="secondary-btn" id="discardTestsBtn">Discard & start new</button>
+        </div>
+      </div>
+      <div id="preTestNormal">
+        <div class="field-row">
+          <label class="small">Date<br><input type="date" id="testDate"></label>
+          <label class="small">Type<br>
+            <select id="testType"><option>Initial Test</option><option>Retest</option></select></label>
+        </div>
+        <p class="hint" style="margin:14px 0 20px;">11 tests, one at a time, with the scoring guide from the booklet so you know what a 4 feels like versus a 7.</p>
+        <button class="primary" id="startTests">Start tests</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="testOverlay" class="overlay">
+    <div class="ov-wrap">
+      <div class="ov-top">
+        <div class="ov-progress"><div class="ov-progress-fill" id="tvFill"></div></div>
+        <div class="ov-progress-text" id="tvStep">1 / 11</div>
+        <button class="ov-close" id="tvClose" aria-label="Exit tests">Exit</button>
+      </div>
+      <div id="tvBody"></div>
+      <div id="tvSummary" style="display:none;"></div>
+    </div>
+  </div>
+
+  <section id="tab-history" class="panel">
+    <h3 style="font-family:var(--font-head); font-weight:600; margin-bottom:6px;">Consistency</h3>
+    <div class="stats" style="margin-bottom:16px;">
+      <div class="stat"><div class="num" id="calStreak">0</div><div class="lbl">day streak</div></div>
+      <div class="stat"><div class="num" id="calLongest">0</div><div class="lbl">longest streak</div></div>
+      <div class="stat"><div class="num" id="calWeek">0</div><div class="lbl">this week <span class="wk-target">/ 4 target</span></div></div>
+    </div>
+    <div class="week-progress"><div class="week-progress-fill" id="weekFill"></div></div>
+    <p class="hint" id="weekMsg" style="margin:0 0 20px;"></p>
+    <div class="cal-header">
+      <button type="button" class="secondary" id="calPrev">‹</button>
+      <div class="cal-label" id="calLabel"></div>
+      <button type="button" class="secondary" id="calNext">›</button>
+    </div>
+    <div class="cal-dow"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+    <div class="cal-grid" id="calGrid"></div>
+
+    <h3 style="font-family:var(--font-head); font-weight:600; margin:30px 0 6px;">Left / Right balance</h3>
+    <p class="hint" style="margin:0 0 12px;">Flagged when one side has consistently scored or performed lower over your last few entries — the booklet cares about symmetry as much as the raw numbers.</p>
+    <div id="asymmetryList"></div>
+
+    <h3 style="font-family:var(--font-head); font-weight:600; margin:30px 0 6px;">Test progress</h3>
+    <select id="chartTest"></select>
+    <svg class="chart" id="chartSvg" viewBox="0 0 640 200" preserveAspectRatio="none"></svg>
+    <div class="chart-legend" id="chartLegend"></div>
+
+    <h3 style="font-family:var(--font-head); font-weight:600; margin:30px 0 6px;">Exercise progress</h3>
+    <select id="chartExercise"></select>
+    <svg class="chart" id="exChartSvg" viewBox="0 0 640 200" preserveAspectRatio="none"></svg>
+
+    <h3 style="font-family:var(--font-head); font-weight:600; margin:28px 0 6px;">Session log</h3>
+    <div id="sessionHistory"><p class="empty">No sessions logged yet.</p></div>
+
+    <h3 style="font-family:var(--font-head); font-weight:600; margin:28px 0 6px;">Test log</h3>
+    <div id="testHistory"><p class="empty">No tests logged yet.</p></div>
+
+    <h3 style="font-family:var(--font-head); font-weight:600; margin:30px 0 6px;">Backup</h3>
+    <p class="hint" style="margin:0 0 14px;">Everything here lives only in this browser. Export a backup file now and then, and you can bring it all back — sessions, tests, and reference photos — after clearing your cache or on a different browser or device.</p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;">
+      <button type="button" class="primary" id="exportBtn">Export data</button>
+      <label class="secondary-btn" id="importLabel">Import data<input type="file" accept="application/json" id="importInput" hidden></label>
+    </div>
+    <p class="hint" style="margin:0 0 10px;">Want to see it in a spreadsheet (Google Sheets, Excel)? These export as CSV — handy for viewing or your own charts, but they're one-way: import only reads the JSON backup above.</p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <button type="button" class="secondary-btn" id="exportSessionsCsv">Export sessions (CSV)</button>
+      <button type="button" class="secondary-btn" id="exportTestsCsv">Export tests (CSV)</button>
+    </div>
+  </section>
+</div>
+
+<script>
+const EXERCISES = [
+  {n:"Couch Stretch Reach", pose:"lungeReachUp", s:"10x each side", t:10, sides:true,
+   cues:["Lunge with your back foot elevated, tuck hips to flatten your lower back","Squeeze the glute on the stretched side","Ribs down, reach up with a closed fist toward a straight fist-to-knee line"],
+   regress:["Pad under the knee","Press to the side instead of overhead","Grab your foot instead of reaching overhead"]},
+  {n:"Glute Bridges", pose:"bridgeBoth", s:"10x reps", t:10, sides:false,
+   cues:["Feet under knees, tuck pelvis to feel your lower abs","Lift hips to fully open, squeeze glutes hard at the top","Lower slow and controlled"],
+   regress:["Poke your glutes as you move","Elevate shoulders on a sofa/bed","Isometric hold at the top position"]},
+  {n:"Single Leg Glute Bridges", pose:"bridgeSingle", s:"10x each side", t:10, sides:true,
+   cues:["Start at the top of a normal glute bridge","Shift weight to one leg, lift the other — don't let the hip drop","Hold max glute squeeze through all reps"],
+   regress:["Poke your glutes as you move","Isometric hold or march at the top","Use the other leg as light support on the floor"]},
+  {n:"90/90 Push Backs", pose:"seated9090", s:"10x each side", t:10, sides:true,
+   cues:["Sit with front leg externally rotated, back leg internally rotated","Sit tall, lift the back leg slightly off the floor","Push the leg back until the hip opens, staying upright"],
+   regress:["Lean onto your hands or back","Bend knees/hips more","Use a sofa/wall for support & to stay upright"]},
+  {n:"Deep Lunge Rotations", pose:"lungeRotate", s:"10x each side", t:10, sides:true,
+   cues:["Push-up position, one foot beside the same-side hand","Drop your elbow low, breathe out sinking into the hip","Rotate your body, reaching your arm up, then back down"],
+   regress:["Back knee on the floor","Angle your body away from your front knee","Elevate the front foot on a sofa/chair"]},
+  {n:"Zenith Rotations", pose:"quadrupedReach", s:"5x hand on head + 5x hand on back, each side", t:5, sides:true,
+   cues:["From all fours, sit your hips back to your heels","Hand on back of head, rotate your chest up — 5 reps, exhale at the top","Repeat on that side with hand on middle of back, then switch sides"],
+   regress:["Cushions between your heels and bum","Keep your hand away from your body","Do them seated, using your other arm for support"]},
+  {n:"Side Stretches", pose:"standSideBend", s:"10x each side", t:10, sides:true,
+   cues:["Stand by a post/frame — outside arm overhead, inside arm at hip height","Lean your body out to the side, stretching down side/lats/hips","Move in and out of the stretch for 10 reps"],
+   regress:["Lean without anchoring on a post/frame","Stretch with your hip against a wall for support","Cross arms overhead instead of straight"]},
+  {n:"Hip Hikes", pose:"standHipHike", s:"10x each side", t:10, sides:true,
+   cues:["Stand tall, hands on hips, bend one knee so the foot's behind you","Drop that hip below the straight knee, then hike it up above it","Return to in-line and repeat"],
+   regress:["Hold onto a support for balance","Just focus on hiking up or dropping down","Sideways marching or wiggling"]},
+  {n:"Thoracic Bridge Press", pose:"bridgeSideArmUp", s:"10x each side", t:10, sides:true,
+   cues:["From seated, lift your hips up onto hands and feet","Shift weight to one arm, press down and lift your whole body higher","Reach the free arm away, lower with control"],
+   regress:["Reduce the angle using a sofa/bed/chair","Tabletop bridge","Wall biceps stretch"]},
+  {n:"Assisted Split Squat", pose:"splitSquatAssisted", s:"10x each side", t:10, sides:true,
+   cues:["Hold onto a post/wall in a long stance","Lunge deeply, knee tracking as far over the front foot as possible","Use your arms to sink lower — aim for bum to heel"],
+   regress:["Elevate your front foot","Push on your thigh with your hands to stand","Only lower down, then assist yourself back up"]},
+  {n:"Unassisted Split Squat", pose:"splitSquatFree", s:"10x each side", t:10, sides:true,
+   cues:["Same setup as Assisted Split Squat, but don't hold onto anything","Grip the ground with your front toes and pull yourself down","Push from the back leg, keep your core engaged"],
+   regress:["Assisted Split Squats, using as little assistance as possible","Isometric holds at different heights","Slow negative reps, then assist yourself back up"]},
+  {n:"Side Plank Marches", pose:"sidePlankMarch", s:"10x each side", t:10, sides:true,
+   cues:["Lie on your side, bottom elbow down, feet staggered, lift up","Shift weight to one leg, bring the other knee to your chest","Keep a straight line from shoulder to hip to ankle"],
+   regress:["Hold a Side Plank without marching","Side Plank on knees","Elevated Side Plank Marches (arm on sofa/chair)"]},
+  {n:"Elbow Withdrawal Lunges", pose:"lungeElbowsBack", s:"10x each side", t:10, sides:true,
+   cues:["Draw elbows back, hands at your sides, squeeze shoulder blades","Step one foot back and slowly drop your knee to gently tap the floor","Bring the foot back to standing in one motion, keeping shoulders set"],
+   regress:["Hold onto a wall/post, one side at a time","Practise the lunge and elbow position separately","Reduce the lunge range of motion"]},
+  {n:"Crossed Arm Overhead Kickstand Squat", pose:"squatCrossedArms", s:"10x each side", t:10, sides:true,
+   cues:["Grab your elbows overhead, one heel elevated (ball of foot down)","Pull yourself into a squat, more weight on the flat-foot side","Pause at the bottom, chest upright, arms staying up"],
+   regress:["Squat with your arms out in front","Elevate both heels generously (blocks/books)","Squat to a chair/sofa without relaxing at the bottom"]},
+  {n:"Single Leg Deadlifts", pose:"singleLegDeadlift", s:"10x each leg", t:10, sides:true,
+   cues:["Stand tall, brace like a plank, lift one foot off the ground","Hinge from the hips, reaching the back foot behind you","Drive back up by squeezing the glute, torso staying straight"],
+   regress:["Use a chair/sofa in front of you for balance","Elevate the back foot and practise hinging"]},
+];
+const TESTS = [
+  {n:"Visual Assessment", pose:"standNeutral", sides:false, scoreless:true,
+   cues:["Jump up and down and get relaxed","Video yourself, straight on, from the front, back & side","Look for: shifted head, rounded shoulders, hip/shoulder height differences, twists, pelvic tilt"]},
+  {n:"Closed Eyes Balance", pose:"standOneLegBalance", sides:true,
+   cues:["Shift weight to one leg, lift the other to about 90°","Balance for 30 seconds, then switch legs","If you can, repeat eyes closed, then eyes closed with arms crossed"],
+   guide:["Immediately falls","30s eyes open","30s eyes closed + arms crossed"]},
+  {n:"Butt Test — Both Sides", pose:"standHandsHips", sides:false,
+   cues:["Feet hip-width, one hand on each glute","Squeeze both glutes as hard as you can"],
+   guide:["Can't get any squeeze","Aware of both working, not very strong","Could easily crush walnuts"]},
+  {n:"Butt Test — Single Side", pose:"standHandsHips", sides:true,
+   cues:["Now try squeezing each glute/cheek individually"],
+   guide:["Can only do 1 side, not the other","Both sides weak, or one ok one weak","Almost turning in circles, both sides"]},
+  {n:"Standing Toe Touch", pose:"standForwardFold", sides:false,
+   cues:["Feet close together, legs straight","Fold from the hips, hands down as low as you can","Stop if your knees bend or you feel pain"],
+   guide:["Can't bend at hips at all","Fingertips at mid-shin","Fingertips on the floor"]},
+  {n:"90/90 Test", pose:"seated9090", sides:true,
+   cues:["Sit in 90/90 — front leg external, back leg internal, ~90° at thighs & knees","Sit tall, arms out, palms together","Rotate toward your front knee, then toward your back knee"],
+   guide:["Unable to sit in 90/90 at all","Sit without hands, rotate a little (or one way only)","Sit without hands, rotate comfortably both ways"]},
+  {n:"Deep Lunge Test", pose:"lungeElbowDown", sides:true,
+   cues:["Push-up position, one foot beside the same-side hand","Keep shin vertical, try to place your elbow on the floor by your front heel"],
+   guide:["Unable to get into start position","Elbow below mid-shin, above ankle","Elbow fully on floor beside your heel"]},
+  {n:"Couch Stretch Test", pose:"lungeUpright", sides:true,
+   cues:["Lunge with your back foot on a sofa/bench","Tuck pelvis, round your lower back, squeeze your bum","Sit upright by extending the hip, not arching your back"],
+   guide:["Unable to get into start position","Can sit up, tight pull on quads","Sit up, glute squeezed, aware of stretch but not intense"]},
+  {n:"Overhead Reach", pose:"overheadReach", sides:false,
+   cues:["Stand tall, pull ribs down slightly to eliminate back arch","Lift both arms overhead"],
+   guide:["Can't lift arms above shoulders","Arms overhead but back arching / compensating","Both arms overhead, elbows locked, parallel"]},
+  {n:"Crossed Arm Overhead Squat", pose:"squatCrossedArms", sides:false,
+   cues:["Feet at your squat width","Grab opposite elbows, lift arms overhead","Slowly squat to your max depth"],
+   guide:["Unable to squat at all","Squat around parallel, arms almost overhead","Squat below parallel, arms overhead, looking forward comfortably"]},
+  {n:"Side Plank Leg Lift", pose:"sidePlankLegLift", sides:true,
+   cues:["Lie on your side, elbow on the ground, pull elbow toward your hip","Lift hips off the floor, keeping the tension","Lift top leg to parallel and hold 30 seconds"],
+   guide:["Unable to hold a side plank","Can hold the leg lift but shaking","Hold the leg lift 30s, no problem"]},
+];
+const DIFFS = ["Easy","Do-able","Challenging","Impossible"];
+
+// ---- Reference photos (user-supplied, stored locally in this browser only) ----
+let refImages = {};
+try{ refImages = JSON.parse(localStorage.getItem('smm_images')||'{}'); }catch(e){ refImages = {}; }
+
+function saveRefImages(){
+  try{ localStorage.setItem('smm_images', JSON.stringify(refImages)); }catch(e){
+    alert("Couldn't save that photo — it may be too large for browser storage. Try a smaller image.");
+  }
+}
+
+function handleImageFile(name, file, onDone){
+  if(!file) return;
+  const img = new Image();
+  const reader = new FileReader();
+  reader.onload = e => {
+    img.onload = () => {
+      const maxDim = 480;
+      let w = img.width, h = img.height;
+      if(w > h && w > maxDim){ h = Math.round(h * maxDim/w); w = maxDim; }
+      else if(h > maxDim){ w = Math.round(w * maxDim/h); h = maxDim; }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      refImages[name] = canvas.toDataURL('image/jpeg', 0.72);
+      saveRefImages();
+      onDone();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function imageBlock(name){
+  const src = refImages[name];
+  if(src){
+    return `<div class="ref-img-wrap">
+      <img src="${src}" alt="${name} reference">
+      <div class="ref-img-actions">
+        <label class="ref-img-btn">Replace<input type="file" accept="image/*" class="ref-file" data-refname="${name}" hidden></label>
+        <button type="button" class="ref-img-btn ref-remove" data-refname="${name}">Remove</button>
+      </div>
+    </div>`;
+  }
+  return `<label class="ref-img-empty">
+    <span>+ Add a reference photo</span>
+    <input type="file" accept="image/*" class="ref-file" data-refname="${name}" hidden>
+  </label>`;
+}
+
+function wireImageBlock(container, name, rerender){
+  container.querySelectorAll(`.ref-file[data-refname="${name}"]`).forEach(inp=>{
+    inp.addEventListener('change', e=>{
+      const file = e.target.files[0];
+      if(file) handleImageFile(name, file, rerender);
+    });
+  });
+  const removeBtn = container.querySelector(`.ref-remove[data-refname="${name}"]`);
+  if(removeBtn) removeBtn.addEventListener('click', ()=>{
+    delete refImages[name];
+    saveRefImages();
+    rerender();
+  });
+}
+
+let sessions = [], tests = [];
+try{ sessions = JSON.parse(localStorage.getItem('smm_sessions')||'[]'); }catch(e){ sessions=[]; }
+try{ tests = JSON.parse(localStorage.getItem('smm_tests')||'[]'); }catch(e){ tests=[]; }
+
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+document.getElementById('sessionDate').value = todayStr();
+document.getElementById('testDate').value = todayStr();
+
+// ---- Tabs ----
+document.querySelectorAll('nav.tabs button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('nav.tabs button').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('tab-'+b.dataset.tab).classList.add('active');
+    if(b.dataset.tab==='history') renderHistory();
+  });
+});
+
+// ---- Guided session flow ----
+const overlay = document.getElementById('sessionOverlay');
+const ovBody = document.getElementById('ovBody');
+const ovSummary = document.getElementById('ovSummary');
+const ovFill = document.getElementById('ovFill');
+const ovStep = document.getElementById('ovStep');
+let ovIndex = 0;
+let ovResponses = [];
+
+function newResponses(){ return EXERCISES.map(ex=>({difficulty:null, note:'', reps: ex.sides?null:ex.t, repsL: ex.sides?ex.t:null, repsR: ex.sides?ex.t:null})); }
+
+function saveSessionProgress(){
+  try{ localStorage.setItem('smm_session_progress', JSON.stringify({date:document.getElementById('sessionDate').value, index:ovIndex, responses:ovResponses})); }catch(e){}
+}
+function clearSessionProgress(){ try{ localStorage.removeItem('smm_session_progress'); }catch(e){} }
+
+document.getElementById('startSession').addEventListener('click', ()=>{
+  ovResponses = newResponses();
+  ovIndex = 0;
+  overlay.classList.add('open');
+  ovSummary.style.display='none';
+  ovBody.style.display='block';
+  renderStep();
+});
+document.getElementById('resumeSessionBtn').addEventListener('click', ()=>{
+  try{
+    const saved = JSON.parse(localStorage.getItem('smm_session_progress')||'null');
+    if(!saved || !saved.responses) return;
+    ovResponses = saved.responses;
+    ovIndex = Math.min(saved.index, EXERCISES.length-1);
+    document.getElementById('sessionDate').value = saved.date;
+  }catch(e){ return; }
+  overlay.classList.add('open');
+  ovSummary.style.display='none';
+  ovBody.style.display='block';
+  renderStep();
+});
+document.getElementById('discardSessionBtn').addEventListener('click', ()=>{
+  clearSessionProgress();
+  updateResumeHints();
+});
+document.getElementById('ovClose').addEventListener('click', ()=>{
+  saveSessionProgress();
+  overlay.classList.remove('open');
+  updateResumeHints();
+});
+
+function lastExerciseRecord(name){
+  for(let i=sessions.length-1;i>=0;i--){
+    const e = sessions[i].entries.find(en=>en.name===name && (en.difficulty || en.note || en.reps!=null || en.repsL!=null || en.repsR!=null));
+    if(e) return {date:sessions[i].date, difficulty:e.difficulty, note:e.note, reps:e.reps, repsL:e.repsL, repsR:e.repsR};
+  }
+  return null;
+}
+function exerciseNoteHistory(name, limit){
+  const out = [];
+  for(let i=sessions.length-1;i>=0 && out.length<limit;i--){
+    const e = sessions[i].entries.find(en=>en.name===name);
+    if(e && e.note) out.push({date:sessions[i].date, note:e.note});
+  }
+  return out;
+}
+
+function repsField(key, label, val){
+  return `<div class="ov-reps-field">
+    ${label?`<span class="side-lbl">${label}</span>`:''}
+    <button type="button" class="rep-dec" data-key="${key}">–</button>
+    <input type="number" min="0" max="99" data-key="${key}" value="${val==null?'':val}">
+    <button type="button" class="rep-inc" data-key="${key}">+</button>
+  </div>`;
+}
+
+function renderStep(){
+  const ex = EXERCISES[ovIndex];
+  const r = ovResponses[ovIndex];
+  ovFill.style.width = ((ovIndex)/(EXERCISES.length-1||1)*100)+'%';
+  ovStep.textContent = (ovIndex+1)+' / '+EXERCISES.length;
+  const last = lastExerciseRecord(ex.n);
+  const lastReps = last ? (ex.sides ? `L ${last.repsL??'–'} / R ${last.repsR??'–'}` : (last.reps!=null?`${last.reps} reps`:'')) : '';
+  const lastHtml = last
+    ? `<div class="ov-last">Last time (${last.date}): ${last.difficulty?`<span class="sum-chip ${last.difficulty}">${last.difficulty}</span>`:''}${lastReps?` <b>${lastReps}</b>`:''}${last.note?` — ${last.note}`:''}</div>`
+    : `<div class="ov-last">No record yet for this one — this'll be your baseline.</div>`;
+  const noteHist = exerciseNoteHistory(ex.n, 5);
+  const notesHtml = noteHist.length ? `
+    <button type="button" class="ov-toggle" id="ovNotesToggle">Past notes (${noteHist.length})</button>
+    <div class="ov-regress" id="ovNotesBox"><ul>${noteHist.map(n=>`<li><b>${n.date}:</b> ${n.note}</li>`).join('')}</ul></div>` : '';
+  const repsBlock = `<div class="ov-reps-block">
+    <label>Reps completed <span class="target">(aiming for ${ex.t}${ex.sides?' each side':''})</span></label>
+    <div class="ov-reps-row">
+      ${ex.sides ? repsField('repsL','Left', r.repsL) + repsField('repsR','Right', r.repsR) : repsField('reps', null, r.reps)}
+    </div>
+  </div>`;
+  ovBody.innerHTML = `
+    <div class="ov-exname">${ex.n}</div>
+    <div class="ov-scheme">${ex.s}</div>
+    ${imageBlock(ex.n)}
+    ${lastHtml}
+    ${notesHtml}
+    <ul class="ov-cues">${ex.cues.map(c=>`<li>${c}</li>`).join('')}</ul>
+    <button type="button" class="ov-toggle" id="ovRegressToggle">Need an easier option?</button>
+    <div class="ov-regress" id="ovRegressBox">
+      <p>Regressions</p>
+      <ul>${ex.regress.map(g=>`<li>${g}</li>`).join('')}</ul>
+    </div>
+    ${repsBlock}
+    <div class="ov-rate-label">How did it go?</div>
+    <div class="ov-diffs">${DIFFS.map(d=>`<button type="button" data-d="${d}" class="${r.difficulty===d?'sel':''}">${d}</button>`).join('')}</div>
+    <input type="text" class="ov-note" id="ovNoteInput" placeholder="Note (optional)" value="${r.note.replace(/"/g,'&quot;')}">
+    <div class="ov-nav">
+      ${ovIndex>0 ? '<button type="button" class="secondary" id="ovBack">Back</button>' : ''}
+      <button type="button" class="primary" id="ovNext">${ovIndex===EXERCISES.length-1 ? 'Finish session' : 'Done — next exercise'}</button>
+    </div>
+  `;
+  wireImageBlock(ovBody, ex.n, renderStep);
+  if(noteHist.length){
+    document.getElementById('ovNotesToggle').addEventListener('click', e=>{
+      const box = document.getElementById('ovNotesBox');
+      box.classList.toggle('open');
+      e.target.textContent = box.classList.contains('open') ? 'Hide past notes' : `Past notes (${noteHist.length})`;
+    });
+  }
+  document.getElementById('ovRegressToggle').addEventListener('click', e=>{
+    const box = document.getElementById('ovRegressBox');
+    box.classList.toggle('open');
+    e.target.textContent = box.classList.contains('open') ? 'Hide easier options' : 'Need an easier option?';
+  });
+  ovBody.querySelectorAll('.ov-reps-field input').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const v = e.target.value==='' ? null : Math.max(0, +e.target.value);
+      ovResponses[ovIndex][e.target.dataset.key] = v;
+    });
+  });
+  ovBody.querySelectorAll('.rep-dec, .rep-inc').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      const key = e.target.dataset.key;
+      const input = ovBody.querySelector(`.ov-reps-field input[data-key="${key}"]`);
+      let v = input.value==='' ? 0 : +input.value;
+      v = e.target.classList.contains('rep-inc') ? v+1 : Math.max(0, v-1);
+      input.value = v;
+      ovResponses[ovIndex][key] = v;
+    });
+  });
+  ovBody.querySelectorAll('.ov-diffs button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      ovResponses[ovIndex].difficulty = b.dataset.d;
+      ovBody.querySelectorAll('.ov-diffs button').forEach(x=>x.classList.remove('sel'));
+      b.classList.add('sel');
+    });
+  });
+  document.getElementById('ovNoteInput').addEventListener('input', e=>{
+    ovResponses[ovIndex].note = e.target.value;
+  });
+  const backBtn = document.getElementById('ovBack');
+  if(backBtn) backBtn.addEventListener('click', ()=>{ ovIndex--; saveSessionProgress(); renderStep(); });
+  document.getElementById('ovNext').addEventListener('click', ()=>{
+    if(ovIndex < EXERCISES.length-1){ ovIndex++; saveSessionProgress(); renderStep(); }
+    else { saveSessionProgress(); renderSummary(); }
+  });
+}
+
+function renderSummary(){
+  ovFill.style.width='100%';
+  ovStep.textContent = 'Review';
+  ovBody.style.display='none';
+  ovSummary.style.display='block';
+  ovSummary.innerHTML = `
+    <div class="sum-title">Session summary</div>
+    ${EXERCISES.map((ex,i)=>{
+      const r = ovResponses[i];
+      const chip = r.difficulty ? `<span class="sum-chip ${r.difficulty}">${r.difficulty}</span>` : `<span class="sum-chip none">skipped</span>`;
+      const repsTxt = ex.sides ? `L ${r.repsL??'–'} / R ${r.repsR??'–'}` : (r.reps!=null?`${r.reps} reps`:'');
+      return `<div class="sum-row"><span>${ex.n} — ${repsTxt}${r.note?' — '+r.note:''}</span>${chip}</div>`;
+    }).join('')}
+    <label class="small" style="display:block; margin:18px 0 20px;">Overall note for this session<br>
+      <input type="text" class="note-input" id="ovOverallNote" style="width:100%; margin-top:6px;" placeholder="Optional"></label>
+    <div class="ov-nav">
+      <button type="button" class="secondary" id="ovEdit">Back to exercises</button>
+      <button type="button" class="primary" id="ovSave">Save session</button>
+    </div>
+  `;
+  document.getElementById('ovEdit').addEventListener('click', ()=>{
+    ovSummary.style.display='none'; ovBody.style.display='block'; ovIndex=EXERCISES.length-1; renderStep();
+  });
+  document.getElementById('ovSave').addEventListener('click', ()=>{
+    const date = document.getElementById('sessionDate').value || todayStr();
+    const note = document.getElementById('ovOverallNote').value;
+    const entries = EXERCISES.map((ex,i)=>({name:ex.n, difficulty:ovResponses[i].difficulty, note:ovResponses[i].note||null, reps:ovResponses[i].reps, repsL:ovResponses[i].repsL, repsR:ovResponses[i].repsR}))
+      .filter(e=>e.difficulty || e.note || e.reps!=null || e.repsL!=null || e.repsR!=null);
+    sessions.push({date, note, entries});
+    sessions.sort((a,b)=>a.date.localeCompare(b.date));
+    try{ localStorage.setItem('smm_sessions', JSON.stringify(sessions)); }catch(e){}
+    clearSessionProgress();
+    overlay.classList.remove('open');
+    updateStats();
+  });
+}
+
+// ---- Guided tests flow ----
+const tOverlay = document.getElementById('testOverlay');
+const tvBody = document.getElementById('tvBody');
+const tvSummary = document.getElementById('tvSummary');
+const tvFill = document.getElementById('tvFill');
+const tvStep = document.getElementById('tvStep');
+let tvIndex = 0;
+let tvResponses = [];
+
+function newTestResponses(){ return TESTS.map(()=>({l:null, r:null, v:null, note:''})); }
+
+function saveTestProgress(){
+  try{ localStorage.setItem('smm_test_progress', JSON.stringify({date:document.getElementById('testDate').value, type:document.getElementById('testType').value, index:tvIndex, responses:tvResponses})); }catch(e){}
+}
+function clearTestProgress(){ try{ localStorage.removeItem('smm_test_progress'); }catch(e){} }
+
+document.getElementById('startTests').addEventListener('click', ()=>{
+  tvResponses = newTestResponses();
+  tvIndex = 0;
+  tOverlay.classList.add('open');
+  tvSummary.style.display='none';
+  tvBody.style.display='block';
+  renderTestStep();
+});
+document.getElementById('resumeTestsBtn').addEventListener('click', ()=>{
+  try{
+    const saved = JSON.parse(localStorage.getItem('smm_test_progress')||'null');
+    if(!saved || !saved.responses) return;
+    tvResponses = saved.responses;
+    tvIndex = Math.min(saved.index, TESTS.length-1);
+    document.getElementById('testDate').value = saved.date;
+    document.getElementById('testType').value = saved.type;
+  }catch(e){ return; }
+  tOverlay.classList.add('open');
+  tvSummary.style.display='none';
+  tvBody.style.display='block';
+  renderTestStep();
+});
+document.getElementById('discardTestsBtn').addEventListener('click', ()=>{
+  clearTestProgress();
+  updateResumeHints();
+});
+document.getElementById('tvClose').addEventListener('click', ()=>{
+  saveTestProgress();
+  tOverlay.classList.remove('open');
+  updateResumeHints();
+});
+
+function scoreRow(label, key, r){
+  const val = r[key]==null ? 5 : r[key];
+  return `<div class="ov-score-block">
+    <label>${label}</label>
+    <div class="ov-score-row">
+      <input type="range" min="1" max="10" value="${val}" data-key="${key}" class="tv-range">
+      <span class="ov-score-val" data-valfor="${key}">${r[key]==null?'–':val}</span>
+    </div>
+  </div>`;
+}
+
+function lastTestRecord(name){
+  for(let i=tests.length-1;i>=0;i--){
+    const s = tests[i].scores.find(sc=>sc.name===name && (sc.v!=null || sc.l!=null || sc.r!=null || sc.note));
+    if(s) return {date:tests[i].date, ...s};
+  }
+  return null;
+}
+
+function renderTestStep(){
+  const t = TESTS[tvIndex];
+  const r = tvResponses[tvIndex];
+  tvFill.style.width = ((tvIndex)/(TESTS.length-1||1)*100)+'%';
+  tvStep.textContent = (tvIndex+1)+' / '+TESTS.length;
+  let scoreHtml = '';
+  if(!t.scoreless){
+    scoreHtml = t.sides ? scoreRow('Left', 'l', r) + scoreRow('Right', 'r', r) : scoreRow('Score', 'v', r);
+  }
+  const last = lastTestRecord(t.n);
+  let lastHtml;
+  if(!last){ lastHtml = `<div class="ov-last">No record yet for this one — this'll be your baseline.</div>`; }
+  else if(t.scoreless){ lastHtml = `<div class="ov-last">Last time (${last.date})${last.note?`: ${last.note}`:' — noted, no score'}</div>`; }
+  else if(t.sides){ lastHtml = `<div class="ov-last">Last time (${last.date}): <b>L ${last.l??'–'} / R ${last.r??'–'}</b>${last.note?` — ${last.note}`:''}</div>`; }
+  else { lastHtml = `<div class="ov-last">Last time (${last.date}): <b>${last.v??'–'}</b>${last.note?` — ${last.note}`:''}</div>`; }
+  tvBody.innerHTML = `
+    <div class="ov-exname">${t.n}</div>
+    ${imageBlock(t.n)}
+    ${lastHtml}
+    <ul class="ov-cues">${t.cues.map(c=>`<li>${c}</li>`).join('')}</ul>
+    ${t.guide ? `<div class="ov-guide"><span>0 — ${t.guide[0]}</span><span>5 — ${t.guide[1]}</span><span>10 — ${t.guide[2]}</span></div>` : ''}
+    ${scoreHtml}
+    <input type="text" class="ov-note" id="tvNoteInput" placeholder="Note (optional)" value="${r.note.replace(/"/g,'&quot;')}">
+    <div class="ov-nav">
+      ${tvIndex>0 ? '<button type="button" class="secondary" id="tvBack">Back</button>' : ''}
+      <button type="button" class="primary" id="tvNext">${tvIndex===TESTS.length-1 ? 'Finish tests' : 'Done — next test'}</button>
+    </div>
+  `;
+  wireImageBlock(tvBody, t.n, renderTestStep);
+  tvBody.querySelectorAll('.tv-range').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const key = e.target.dataset.key;
+      r[key] = +e.target.value;
+      tvBody.querySelector(`[data-valfor="${key}"]`).textContent = e.target.value;
+    });
+  });
+  document.getElementById('tvNoteInput').addEventListener('input', e=>{ r.note = e.target.value; });
+  const backBtn = document.getElementById('tvBack');
+  if(backBtn) backBtn.addEventListener('click', ()=>{ tvIndex--; saveTestProgress(); renderTestStep(); });
+  document.getElementById('tvNext').addEventListener('click', ()=>{
+    if(tvIndex < TESTS.length-1){ tvIndex++; saveTestProgress(); renderTestStep(); }
+    else { saveTestProgress(); renderTestSummary(); }
+  });
+}
+
+function renderTestSummary(){
+  tvFill.style.width='100%';
+  tvStep.textContent = 'Review';
+  tvBody.style.display='none';
+  tvSummary.style.display='block';
+  tvSummary.innerHTML = `
+    <div class="sum-title">Test results</div>
+    ${TESTS.map((t,i)=>{
+      const r = tvResponses[i];
+      let val;
+      if(t.scoreless) val = r.note ? '<span class="sum-chip none">noted</span>' : '<span class="sum-chip none">skipped</span>';
+      else if(t.sides) val = `<span class="sum-chip Do-able">L ${r.l??'–'} / R ${r.r??'–'}</span>`;
+      else val = `<span class="sum-chip Do-able">${r.v??'–'}</span>`;
+      return `<div class="sum-row"><span>${t.n}${r.note?' — '+r.note:''}</span>${val}</div>`;
+    }).join('')}
+    <div class="ov-nav" style="margin-top:18px;">
+      <button type="button" class="secondary" id="tvEdit">Back to tests</button>
+      <button type="button" class="primary" id="tvSave">Save test results</button>
+    </div>
+  `;
+  document.getElementById('tvEdit').addEventListener('click', ()=>{
+    tvSummary.style.display='none'; tvBody.style.display='block'; tvIndex=TESTS.length-1; renderTestStep();
+  });
+  document.getElementById('tvSave').addEventListener('click', ()=>{
+    const date = document.getElementById('testDate').value || todayStr();
+    const type = document.getElementById('testType').value;
+    const scores = TESTS.map((t,i)=>{
+      const r = tvResponses[i];
+      return { name:t.n, l:r.l, r:r.r, v:r.v, note:r.note||null };
+    }).filter(s=> s.v!=null || s.l!=null || s.r!=null || s.note);
+    tests.push({date, type, scores});
+    tests.sort((a,b)=>a.date.localeCompare(b.date));
+    try{ localStorage.setItem('smm_tests', JSON.stringify(tests)); }catch(e){}
+    clearTestProgress();
+    tOverlay.classList.remove('open');
+    updateStats();
+    populateChartSelect();
+  });
+}
+
+// ---- Stats ----
+function computeStreaks(){
+  const dates = [...new Set(sessions.map(s=>s.date))].sort();
+  if(dates.length===0) return {current:0, longest:0};
+  let longest=1, run=1;
+  for(let i=1;i<dates.length;i++){
+    const diff = (new Date(dates[i]) - new Date(dates[i-1]))/86400000;
+    run = diff===1 ? run+1 : 1;
+    longest = Math.max(longest, run);
+  }
+  const today = new Date(todayStr());
+  const lastDate = new Date(dates[dates.length-1]);
+  const gap = (today - lastDate)/86400000;
+  let current = 0;
+  if(gap<=1){
+    current=1;
+    for(let i=dates.length-2;i>=0;i--){
+      const diff = (new Date(dates[i+1]) - new Date(dates[i]))/86400000;
+      if(diff===1) current++; else break;
+    }
+  }
+  return {current, longest};
+}
+
+function updateStats(){
+  document.getElementById('statSessions').textContent = sessions.length;
+  const {current} = computeStreaks();
+  document.getElementById('statStreak').textContent = current;
+  if(sessions.length){
+    const last = sessions[sessions.length-1].date;
+    const days = Math.floor((new Date(todayStr()) - new Date(last))/86400000);
+    document.getElementById('statLast').textContent = days===0 ? 'today' : (days+'d ago');
+  } else {
+    document.getElementById('statLast').textContent = '–';
+  }
+  const initial = tests.find(t=>t.type==='Initial Test');
+  if(initial){
+    const now = new Date(todayStr());
+    let weeksOut = 4;
+    while(new Date(initial.date).getTime() + weeksOut*7*86400000 < now.getTime() && weeksOut<16){ weeksOut+=4; }
+    const dueDate = new Date(new Date(initial.date).getTime() + weeksOut*7*86400000);
+    document.getElementById('statRetest').textContent = dueDate.toISOString().slice(0,10);
+  } else {
+    document.getElementById('statRetest').textContent = '–';
+  }
+  updateWeakLink();
+  updateResumeHints();
+  updateExportReminder();
+}
+
+function updateExportReminder(){
+  const box = document.getElementById('exportReminderBox');
+  if(!box) return;
+  if(sessions.length===0 && tests.length===0){ box.style.display='none'; return; }
+  let lastExport = null;
+  try{ lastExport = localStorage.getItem('smm_last_export'); }catch(e){}
+  const REMIND_DAYS = 14;
+  if(!lastExport){
+    box.style.display='block';
+    box.querySelector('p').textContent = "You haven't backed up yet — export your data so a cleared cache or new phone can't lose it.";
+    return;
+  }
+  const days = Math.floor((new Date(todayStr()) - new Date(lastExport))/86400000);
+  if(days >= REMIND_DAYS){
+    box.style.display='block';
+    box.querySelector('p').textContent = `It's been ${days} days since your last backup — worth exporting again.`;
+  } else {
+    box.style.display='none';
+  }
+}
+
+function updateWeakLink(){
+  const box = document.getElementById('weakLinkBox');
+  const recent = sessions.slice(-6);
+  const counts = {};
+  recent.forEach(s=> s.entries.forEach(e=>{
+    if(e.difficulty==='Challenging' || e.difficulty==='Impossible'){
+      counts[e.name] = (counts[e.name]||0) + (e.difficulty==='Impossible'?2:1);
+    }
+  }));
+  let top=null, topVal=0;
+  Object.entries(counts).forEach(([name,val])=>{ if(val>topVal){ top=name; topVal=val; } });
+  if(top && topVal>=2){
+    box.style.display='block';
+    box.textContent = `Worth extra attention: ${top} — you've rated it Challenging or harder most often in recent sessions.`;
+  } else {
+    box.style.display='none';
+  }
+}
+
+function updateResumeHints(){
+  try{
+    const sp = JSON.parse(localStorage.getItem('smm_session_progress')||'null');
+    const banner = document.getElementById('sessionResumeBanner');
+    const normal = document.getElementById('preSessionNormal');
+    if(sp && sp.responses){
+      banner.style.display='block';
+      normal.style.display='none';
+      document.getElementById('sessionResumeText').textContent = `You have an unfinished session from ${sp.date} — you were on exercise ${sp.index+1} of ${EXERCISES.length}.`;
+    } else {
+      banner.style.display='none';
+      normal.style.display='block';
+    }
+  }catch(e){}
+  try{
+    const tp = JSON.parse(localStorage.getItem('smm_test_progress')||'null');
+    const banner = document.getElementById('testResumeBanner');
+    const normal = document.getElementById('preTestNormal');
+    if(tp && tp.responses){
+      banner.style.display='block';
+      normal.style.display='none';
+      document.getElementById('testResumeText').textContent = `You have unfinished tests from ${tp.date} — you were on test ${tp.index+1} of ${TESTS.length}.`;
+    } else {
+      banner.style.display='none';
+      normal.style.display='block';
+    }
+  }catch(e){}
+}
+
+// ---- Tips ----
+const TIPS = [
+  "Do all 15 exercises in order, in one session — splitting them up or skipping any cuts their effectiveness.",
+  "Short on time? Halve the reps rather than skipping exercises entirely.",
+  "Rough day? Try the 1-rep method: just one rep of each move, then see how you feel — you'll often want to keep going.",
+  "Retest every 4 weeks (weeks 4, 8, 12, 16) so progress is something you measure, not just guess at.",
+  "Struggling with one exercise? Spend an extra 10–20 minutes just on that move instead of hunting for a new one online.",
+  "If one side feels tighter, linger there — extra breaths and time on your weak side evens you up faster than a new stretch would.",
+  "Try 5 minutes of unscripted 'Head to Toe' movement on a rest day — no script, just explore what feels tight.",
+  "Filming yourself from the side can reveal compensations you can't feel, like a rounding back or a hiking hip.",
+  "Pain isn't always damage — a dull ache during a stretch is often just your body adjusting, not a red flag to stop entirely.",
+  "Feeling a setback? Breathe in for 5, out for 5, three times, then gently re-try the movement that hurts.",
+  "During a flare-up, drop everything to the easiest regression for a session — it helps you find what's actually gone wonky.",
+  "Motivation comes and goes. Write down your real 'why' now, so you've got something to reread on days you don't feel like training.",
+  "Balance is trainable, and it's normal for it to be worse first thing in the morning — don't judge a bad balance day too harshly.",
+  "Don't chase 10 reps too soon — 3 to 5 reps done with good technique beats 10 rushed ones.",
+  "Can't do a movement without pain? That's exactly what regressions are for — no ego needed.",
+  "Consistency beats intensity — 1–2 sessions a week done regularly beats an all-or-nothing approach.",
+  "Notice which exercise you always want to skip — that's usually the one that needs the most attention.",
+  "A short, easy session on a bad day keeps the habit alive far better than skipping it altogether.",
+];
+function showTip(){
+  document.getElementById('tipText').textContent = TIPS[Math.floor(Math.random()*TIPS.length)];
+}
+document.getElementById('tipShuffle').addEventListener('click', showTip);
+showTip();
+
+// ---- Calendar ----
+let calMonth = new Date(new Date(todayStr()).getFullYear(), new Date(todayStr()).getMonth(), 1);
+document.getElementById('calPrev').addEventListener('click', ()=>{ calMonth.setMonth(calMonth.getMonth()-1); renderCalendar(); });
+document.getElementById('calNext').addEventListener('click', ()=>{ calMonth.setMonth(calMonth.getMonth()+1); renderCalendar(); });
+
+function renderCalendar(){
+  const dates = new Set(sessions.map(s=>s.date));
+  const {current, longest} = computeStreaks();
+  document.getElementById('calStreak').textContent = current;
+  document.getElementById('calLongest').textContent = longest;
+  const weekAgo = new Date(new Date(todayStr()).getTime() - 6*86400000);
+  const weekCount = [...dates].filter(d=> new Date(d) >= weekAgo).length;
+  document.getElementById('calWeek').textContent = weekCount;
+  const WEEKLY_TARGET = 4;
+  document.getElementById('weekFill').style.width = Math.min(100, weekCount/WEEKLY_TARGET*100)+'%';
+  const weekMsg = document.getElementById('weekMsg');
+  if(weekCount===0) weekMsg.textContent = "The booklet recommends 3–4 sessions a week — none logged in the last 7 days yet.";
+  else if(weekCount < WEEKLY_TARGET) weekMsg.textContent = `${weekCount} of ${WEEKLY_TARGET} this week — ${WEEKLY_TARGET-weekCount} more to hit the recommended range.`;
+  else weekMsg.textContent = `${weekCount} this week — right on (or above) the recommended 3–4.`;
+
+  const label = calMonth.toLocaleDateString('en-US', {month:'long', year:'numeric'});
+  document.getElementById('calLabel').textContent = label;
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML='';
+  const year = calMonth.getFullYear(), month = calMonth.getMonth();
+  const firstDow = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const today = todayStr();
+  for(let i=0;i<firstDow;i++){ const d=document.createElement('div'); d.className='cal-day empty'; grid.appendChild(d); }
+  for(let day=1; day<=daysInMonth; day++){
+    const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const cell = document.createElement('div');
+    cell.className = 'cal-day' + (dates.has(ds)?' done':'') + (ds===today?' today':'');
+    cell.textContent = day;
+    grid.appendChild(cell);
+  }
+}
+
+
+// ---- History / chart ----
+function populateChartSelect(){
+  const sel = document.getElementById('chartTest');
+  sel.innerHTML = TESTS.map(t=>`<option value="${t.n}">${t.n}</option>`).join('');
+  sel.onchange = drawChart;
+  const exSel = document.getElementById('chartExercise');
+  exSel.innerHTML = EXERCISES.map(e=>`<option value="${e.n}">${e.n}</option>`).join('');
+  exSel.onchange = drawExerciseChart;
+}
+const DIFF_VAL = {Impossible:1, Challenging:2, 'Do-able':3, Easy:4};
+function drawExerciseChart(){
+  const svg = document.getElementById('exChartSvg');
+  svg.innerHTML = '';
+  const name = document.getElementById('chartExercise').value;
+  const points = sessions.map(s=>{
+    const e = s.entries.find(en=>en.name===name);
+    return (e && e.difficulty) ? {date:s.date, val:DIFF_VAL[e.difficulty]} : null;
+  }).filter(Boolean);
+  if(points.length===0){
+    svg.innerHTML = `<text x="10" y="100" font-size="13" fill="var(--ink-soft)">No ratings yet for this exercise.</text>`;
+    return;
+  }
+  const W=640,H=200,pad=28;
+  const x = i => points.length>1 ? pad + i*(W-2*pad)/(points.length-1) : W/2;
+  const y = v => H-pad - (v-1)*(H-2*pad)/3;
+  const pts = points.map((p,i)=>`${x(i)},${y(p.val)}`).join(' ');
+  const poly = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+  poly.setAttribute('points', pts); poly.setAttribute('fill','none'); poly.setAttribute('stroke','#17304A'); poly.setAttribute('stroke-width','2');
+  svg.appendChild(poly);
+  points.forEach((p,i)=>{
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',x(i)); c.setAttribute('cy',y(p.val)); c.setAttribute('r','3.5'); c.setAttribute('fill','#17304A');
+    svg.appendChild(c);
+  });
+  const axis = document.createElementNS('http://www.w3.org/2000/svg','line');
+  axis.setAttribute('x1',pad); axis.setAttribute('y1',H-pad); axis.setAttribute('x2',W-pad); axis.setAttribute('y2',H-pad);
+  axis.setAttribute('stroke','var(--line)'); svg.appendChild(axis);
+  [[1,'Hard'],[2,'Tough'],[3,'OK'],[4,'Easy']].forEach(([v,lbl])=>{
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',2); t.setAttribute('y',y(v)+4); t.setAttribute('font-size','9'); t.setAttribute('fill','var(--ink-soft)');
+    t.textContent=lbl; svg.appendChild(t);
+  });
+}
+function drawChart(){
+  const svg = document.getElementById('chartSvg');
+  const legend = document.getElementById('chartLegend');
+  svg.innerHTML = ''; legend.innerHTML='';
+  const testName = document.getElementById('chartTest').value;
+  const testDef = TESTS.find(t=>t.n===testName);
+  const points = tests.map(t=>{
+    const rec = t.scores.find(s=>s.name===testName);
+    return rec ? {date:t.date, l:rec.l, r:rec.r, v:rec.v} : null;
+  }).filter(Boolean);
+  if(points.length===0){
+    svg.innerHTML = `<text x="10" y="100" font-size="13" fill="var(--ink-soft)">No test data yet for this test.</text>`;
+    return;
+  }
+  const W=640,H=200,pad=28;
+  const x = i => points.length>1 ? pad + i*(W-2*pad)/(points.length-1) : W/2;
+  const y = v => H-pad - (v-1)*(H-2*pad)/9;
+  function line(vals,color){
+    const pts = vals.map((v,i)=> v!=null ? `${x(i)},${y(v)}` : null).filter(Boolean);
+    if(pts.length<1) return;
+    const path = pts.join(' ');
+    const poly = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+    poly.setAttribute('points', pts.length>1?path:'');
+    poly.setAttribute('fill','none'); poly.setAttribute('stroke',color); poly.setAttribute('stroke-width','2');
+    svg.appendChild(poly);
+    vals.forEach((v,i)=>{ if(v!=null){
+      const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',x(i)); c.setAttribute('cy',y(v)); c.setAttribute('r','3.5'); c.setAttribute('fill',color);
+      svg.appendChild(c);
+    }});
+  }
+  // axis
+  const axis = document.createElementNS('http://www.w3.org/2000/svg','line');
+  axis.setAttribute('x1',pad); axis.setAttribute('y1',H-pad); axis.setAttribute('x2',W-pad); axis.setAttribute('y2',H-pad);
+  axis.setAttribute('stroke','var(--line)'); svg.appendChild(axis);
+  [1,10].forEach(v=>{
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',2); t.setAttribute('y',y(v)+4); t.setAttribute('font-size','10'); t.setAttribute('fill','var(--ink-soft)');
+    t.textContent=v; svg.appendChild(t);
+  });
+  if(testDef.sides){
+    line(points.map(p=>p.l), '#7B8FA3');
+    line(points.map(p=>p.r), '#A96A2E');
+    legend.innerHTML = `<span><span class="legend-dot" style="background:#7B8FA3"></span>Left</span><span><span class="legend-dot" style="background:#A96A2E"></span>Right</span>`;
+  } else {
+    line(points.map(p=>p.v), '#17304A');
+  }
+}
+
+function checkAsymmetry(diffs, minCount, minGap){
+  if(diffs.length < minCount) return null;
+  const sign = Math.sign(diffs[0]);
+  if(sign===0) return null;
+  if(!diffs.every(d=>Math.sign(d)===sign)) return null;
+  const avg = diffs.reduce((a,b)=>a+b,0)/diffs.length;
+  if(Math.abs(avg) < minGap) return null;
+  return { weaker: sign>0 ? 'right' : 'left', gap: Math.abs(avg) };
+}
+
+function renderAsymmetry(){
+  const box = document.getElementById('asymmetryList');
+  const flags = [];
+
+  TESTS.filter(t=>t.sides).forEach(t=>{
+    const diffs = [];
+    for(let i=tests.length-1; i>=0 && diffs.length<3; i--){
+      const s = tests[i].scores.find(sc=>sc.name===t.n);
+      if(s && s.l!=null && s.r!=null) diffs.push(s.l - s.r);
+    }
+    const res = checkAsymmetry(diffs, 2, 1.5);
+    if(res) flags.push(`<div class="asym-flag"><b>${t.n}</b> — your ${res.weaker} side has averaged ${res.gap.toFixed(1)} points behind over your last ${diffs.length} tests.</div>`);
+  });
+
+  EXERCISES.filter(e=>e.sides).forEach(ex=>{
+    const diffs = [];
+    for(let i=sessions.length-1; i>=0 && diffs.length<3; i--){
+      const e = sessions[i].entries.find(en=>en.name===ex.n);
+      if(e && e.repsL!=null && e.repsR!=null) diffs.push(e.repsL - e.repsR);
+    }
+    const res = checkAsymmetry(diffs, 2, 2);
+    if(res) flags.push(`<div class="asym-flag"><b>${ex.n}</b> — your ${res.weaker} side has completed about ${res.gap.toFixed(1)} fewer reps on average over your last ${diffs.length} sessions.</div>`);
+  });
+
+  box.innerHTML = flags.length ? flags.join('') : '<p class="empty">No consistent left/right gaps yet — either you\'re even, or there\'s not enough data on both sides yet.</p>';
+}
+
+function renderHistory(){
+  renderCalendar();
+  renderAsymmetry();
+  const sh = document.getElementById('sessionHistory');
+  if(sessions.length===0){ sh.innerHTML='<p class="empty">No sessions logged yet.</p>'; }
+  else {
+    const order = sessions.map((_,i)=>i).reverse();
+    sh.innerHTML = order.map(i=>{
+      const s = sessions[i];
+      const counts = {};
+      s.entries.forEach(e=>{ if(e.difficulty) counts[e.difficulty]=(counts[e.difficulty]||0)+1; });
+      const summary = DIFFS.filter(d=>counts[d]).map(d=>`${counts[d]} ${d}`).join(', ');
+      return `<div class="hist-item"><div class="hist-item-main"><div class="hist-date">${s.date}</div>
+        <div class="hist-meta">${summary || 'No ratings'}${s.note?' — '+s.note:''}</div></div>
+        <div class="hist-actions"><button type="button" class="sess-edit" data-i="${i}">Edit</button><button type="button" class="sess-del" data-i="${i}">Delete</button></div></div>`;
+    }).join('');
+    sh.querySelectorAll('.sess-edit').forEach(b=>b.addEventListener('click', ()=>editSession(+b.dataset.i)));
+    sh.querySelectorAll('.sess-del').forEach(b=>b.addEventListener('click', ()=>deleteSession(+b.dataset.i)));
+  }
+  const th = document.getElementById('testHistory');
+  if(tests.length===0){ th.innerHTML='<p class="empty">No tests logged yet.</p>'; }
+  else {
+    const order = tests.map((_,i)=>i).reverse();
+    th.innerHTML = order.map(i=>{
+      const t = tests[i];
+      return `<div class="hist-item"><div class="hist-item-main"><div class="hist-date">${t.date} — ${t.type}</div>
+        <div class="hist-meta">${t.scores.length} test(s) recorded</div></div>
+        <div class="hist-actions"><button type="button" class="test-edit" data-i="${i}">Edit</button><button type="button" class="test-del" data-i="${i}">Delete</button></div></div>`;
+    }).join('');
+    th.querySelectorAll('.test-edit').forEach(b=>b.addEventListener('click', ()=>editTest(+b.dataset.i)));
+    th.querySelectorAll('.test-del').forEach(b=>b.addEventListener('click', ()=>deleteTest(+b.dataset.i)));
+  }
+  populateChartSelect();
+  drawChart();
+  drawExerciseChart();
+}
+
+function editSession(i){
+  const s = sessions[i];
+  const newDate = prompt('Date (YYYY-MM-DD)', s.date);
+  if(newDate===null) return;
+  const newNote = prompt('Overall note for this session', s.note||'');
+  if(newNote===null) return;
+  s.date = newDate.trim() || s.date;
+  s.note = newNote;
+  sessions.sort((a,b)=>a.date.localeCompare(b.date));
+  try{ localStorage.setItem('smm_sessions', JSON.stringify(sessions)); }catch(e){}
+  updateStats(); renderHistory();
+}
+function deleteSession(i){
+  if(!confirm('Delete this session? This can\'t be undone.')) return;
+  sessions.splice(i,1);
+  try{ localStorage.setItem('smm_sessions', JSON.stringify(sessions)); }catch(e){}
+  updateStats(); renderHistory();
+}
+function editTest(i){
+  const t = tests[i];
+  const newDate = prompt('Date (YYYY-MM-DD)', t.date);
+  if(newDate===null) return;
+  const newType = prompt('Type (Initial Test / Retest)', t.type);
+  if(newType===null) return;
+  t.date = newDate.trim() || t.date;
+  t.type = newType.trim() || t.type;
+  tests.sort((a,b)=>a.date.localeCompare(b.date));
+  try{ localStorage.setItem('smm_tests', JSON.stringify(tests)); }catch(e){}
+  updateStats(); renderHistory();
+}
+function deleteTest(i){
+  if(!confirm('Delete this test result? This can\'t be undone.')) return;
+  tests.splice(i,1);
+  try{ localStorage.setItem('smm_tests', JSON.stringify(tests)); }catch(e){}
+  updateStats(); populateChartSelect(); renderHistory();
+}
+
+// ---- Backup: export / import ----
+async function doExportJson(){
+  const payload = JSON.stringify({exportedAt:new Date().toISOString(), sessions, tests, images:refImages});
+  let saved = false;
+  try{
+    if(window.claude && window.claude.use){
+      const downloads = await window.claude.use('downloads');
+      if(downloads){
+        await downloads.save({filename:'smm-tracker-backup.json', data:payload});
+        saved = true;
+      }
+    }
+    if(!saved) throw {code:'unavailable'};
+  }catch(err){
+    if(err && err.code==='declined') return;
+    try{
+      const blob = new Blob([payload], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'smm-tracker-backup.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 2000);
+      saved = true;
+    }catch(e2){
+      alert("Couldn't export — try again, or copy your data manually.");
+    }
+  }
+  if(saved){
+    try{ localStorage.setItem('smm_last_export', todayStr()); }catch(e){}
+    updateExportReminder();
+  }
+}
+document.getElementById('exportBtn').addEventListener('click', doExportJson);
+document.getElementById('exportReminderBtn').addEventListener('click', doExportJson);
+document.getElementById('importInput').addEventListener('change', e=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    let data;
+    try{ data = JSON.parse(ev.target.result); }catch(err){ alert('That file doesn\'t look like a valid backup.'); return; }
+    if(!data || !Array.isArray(data.sessions) || !Array.isArray(data.tests)){
+      alert('That file doesn\'t look like a valid backup.'); return;
+    }
+    if(!confirm(`Import ${data.sessions.length} session(s) and ${data.tests.length} test result(s)? This replaces the data currently in this browser.`)) return;
+    sessions = data.sessions;
+    tests = data.tests;
+    refImages = data.images || {};
+    try{
+      localStorage.setItem('smm_sessions', JSON.stringify(sessions));
+      localStorage.setItem('smm_tests', JSON.stringify(tests));
+      localStorage.setItem('smm_images', JSON.stringify(refImages));
+    }catch(err){}
+    updateStats(); populateChartSelect(); renderHistory();
+    alert('Import complete.');
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+// ---- CSV exports (view-only, spreadsheet-friendly) ----
+function csvEscape(v){
+  if(v==null) return '';
+  const s = String(v);
+  return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+}
+function rowsToCsv(header, rows){
+  return [header, ...rows].map(r=>r.map(csvEscape).join(',')).join('\r\n');
+}
+async function downloadCsv(filename, csv){
+  try{
+    if(window.claude && window.claude.use){
+      const downloads = await window.claude.use('downloads');
+      if(downloads){ await downloads.save({filename, data:csv}); return; }
+    }
+    throw {code:'unavailable'};
+  }catch(err){
+    if(err && err.code==='declined') return;
+    try{
+      const blob = new Blob([csv], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 2000);
+    }catch(e2){ alert("Couldn't export that file — try again."); }
+  }
+}
+document.getElementById('exportSessionsCsv').addEventListener('click', ()=>{
+  const header = ['Date','Exercise','Target','Difficulty','Reps','RepsLeft','RepsRight','Note','SessionNote'];
+  const rows = [];
+  sessions.forEach(s=>{
+    if(s.entries.length===0){ rows.push([s.date,'','','','','','','',s.note||'']); return; }
+    s.entries.forEach(e=>{
+      const ex = EXERCISES.find(x=>x.n===e.name);
+      rows.push([s.date, e.name, ex?ex.t:'', e.difficulty||'', e.reps??'', e.repsL??'', e.repsR??'', e.note||'', s.note||'']);
+    });
+  });
+  downloadCsv('smm-sessions.csv', rowsToCsv(header, rows));
+});
+document.getElementById('exportTestsCsv').addEventListener('click', ()=>{
+  const header = ['Date','Type','Test','Score','Left','Right','Note'];
+  const rows = [];
+  tests.forEach(t=>{
+    if(t.scores.length===0){ rows.push([t.date,t.type,'','','','','']); return; }
+    t.scores.forEach(sc=>{
+      rows.push([t.date, t.type, sc.name, sc.v??'', sc.l??'', sc.r??'', sc.note||'']);
+    });
+  });
+  downloadCsv('smm-tests.csv', rowsToCsv(header, rows));
+});
+
+updateStats();
+populateChartSelect();
+</script>
+</body>
+</html>
