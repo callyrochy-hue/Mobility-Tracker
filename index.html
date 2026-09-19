@@ -126,6 +126,8 @@ select#chartTest{margin-bottom:14px;}
 .hist-actions{display:flex; gap:6px; flex-shrink:0;}
 .hist-actions button{background:none; border:none; color:var(--ink-soft); font-size:0.76rem; text-decoration:underline; cursor:pointer; padding:2px;}
 .hist-item{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+.hist-item-edit{border-top:1px solid var(--line); padding:12px 0;}
+.hist-item-edit label{display:block; margin-bottom:8px;}
 .hist-item-main{flex:1; min-width:0;}
 .weak-link{background:var(--bg-panel); border-left:3px solid var(--challenge); border-radius:8px; padding:10px 14px; font-size:0.85rem; margin-bottom:16px;}
 .resume-banner{background:var(--bg-panel); border-left:3px solid var(--gold); border-radius:8px; padding:14px; margin-bottom:18px;}
@@ -323,6 +325,13 @@ svg.chart{width:100%; height:200px; overflow:visible;}
       <button type="button" class="primary" id="exportBtn">Export data</button>
       <label class="secondary-btn" id="importLabel">Import data<input type="file" accept="application/json" id="importInput" hidden></label>
     </div>
+    <div class="resume-banner" id="importConfirmBox" style="display:none;">
+      <p id="importConfirmText"></p>
+      <div class="resume-banner-actions">
+        <button type="button" class="primary" id="importConfirmBtn">Yes, import & replace</button>
+        <button type="button" class="secondary-btn" id="importCancelBtn">Cancel</button>
+      </div>
+    </div>
     <p class="hint" style="margin:0 0 10px;">Want to see it in a spreadsheet (Google Sheets, Excel)? These export as CSV — handy for viewing or your own charts, but they're one-way: import only reads the JSON backup above.</p>
     <div style="display:flex; gap:10px; flex-wrap:wrap;">
       <button type="button" class="secondary-btn" id="exportSessionsCsv">Export sessions (CSV)</button>
@@ -334,50 +343,65 @@ svg.chart{width:100%; height:200px; overflow:visible;}
 <script>
 const EXERCISES = [
   {n:"Couch Stretch Reach", pose:"lungeReachUp", s:"10x each side", t:10, sides:true,
-   cues:["Lunge with your back foot elevated, tuck hips to flatten your lower back","Squeeze the glute on the stretched side","Ribs down, reach up with a closed fist toward a straight fist-to-knee line"],
-   regress:["Pad under the knee","Press to the side instead of overhead","Grab your foot instead of reaching overhead"]},
+   cues:["Set up in a lunge, back foot on sofa/bed/chair","Tuck your hips to flatten your lower back & lift your chest up while keeping the tuck","Squeeze the glute on the stretched side, aiming to feel a stretch at your hip, not just your quad","Keep your ribs down as you reach up with a closed fist — aim for a straight line from fist to knee","Bring your hand down, making sure your glute is still squeezed, hips tucked and ribs down","Repeat for 10 reps, then swap sides"],
+   lookFor:["Major tightness in the quads or hip flexors","Bent or \u201cclosed\u201d hips","Can't lift arm straight overhead"],
+   regress:["Use some padding under your knee e.g. cushion","Press to the side instead of overhead","Put knee onto your bed/sofa & front leg standing","Grab your foot instead of reaching overhead"]},
   {n:"Glute Bridges", pose:"bridgeBoth", s:"10x reps", t:10, sides:false,
-   cues:["Feet under knees, tuck pelvis to feel your lower abs","Lift hips to fully open, squeeze glutes hard at the top","Lower slow and controlled"],
-   regress:["Poke your glutes as you move","Elevate shoulders on a sofa/bed","Isometric hold at the top position"]},
+   cues:["Lying down, bring your feet under your knees","Tuck your pelvis so that you feel your lower abs","Lift your pelvis up to fully open your hips, squeezing your glutes hard","Maintaining the squeeze, lower your hips down","Repeat slowly and controlled for 10 reps"],
+   lookFor:["Not fully opening hips at the top","Glutes only engage at the top","Fatiguing very quickly","Over extending (arching) your lower back","Hamstrings or quads taking over"],
+   regress:["Poke your glutes as you move (encourages activation)","Elevate shoulders on sofa/bed/etc.","Isometric hold at the top position","Adjust position of feet and/or lift up toes"]},
   {n:"Single Leg Glute Bridges", pose:"bridgeSingle", s:"10x each side", t:10, sides:true,
-   cues:["Start at the top of a normal glute bridge","Shift weight to one leg, lift the other — don't let the hip drop","Hold max glute squeeze through all reps"],
-   regress:["Poke your glutes as you move","Isometric hold or march at the top","Use the other leg as light support on the floor"]},
+   cues:["Start at the top of a normal glute bridge","Transfer your weight to one leg and lift up the other — don't let your hip drop as you lift","Keep this position as you go through 10 reps","Maintain max glute squeeze on the working leg"],
+   lookFor:["Not fully opening hips at the top","Glutes only engage at the top","Fatiguing very quickly (on one or both sides)","Over extending (arching) your lower back","Hamstrings or quads taking over","Any drop or change in position when you lift a leg","One side feeling more challenging/impossible","Twisting, compensating or cheating on one side"],
+   regress:["Poke your glutes as you move","Elevate shoulders on sofa/bed/etc.","Isometric hold or march at the top position","Use other leg as light support on floor"]},
   {n:"90/90 Push Backs", pose:"seated9090", s:"10x each side", t:10, sides:true,
-   cues:["Sit with front leg externally rotated, back leg internally rotated","Sit tall, lift the back leg slightly off the floor","Push the leg back until the hip opens, staying upright"],
-   regress:["Lean onto your hands or back","Bend knees/hips more","Use a sofa/wall for support & to stay upright"]},
+   cues:["Sit on the floor with front leg externally rotated (outside of leg on floor), back leg internally rotated (inside of leg on floor) — aim for 90 degrees at thighs & knees","Sit up tall, ideally with no hands on the floor","Lift your back leg a few centimetres off the floor (with minimal torso leaning)","Try to stay upright & push leg back until hip is open","Repeat for 10 reps, then switch to the other side"],
+   lookFor:["Reliance on your hands on the floor","Discomfort, tightness or restrictions on either side","Excessive leaning when you lift the leg","Inability to engage the glute of the back leg","Difference side to side","Extending the knee instead of the hip"],
+   regress:["Lean onto your hands, or onto your back","Bend knees/hips more","Use a sofa/wall for support & to stay upright","Push back into a wall/object for engagement","Practice sitting or switching without pushbacks"]},
   {n:"Deep Lunge Rotations", pose:"lungeRotate", s:"10x each side", t:10, sides:true,
-   cues:["Push-up position, one foot beside the same-side hand","Drop your elbow low, breathe out sinking into the hip","Rotate your body, reaching your arm up, then back down"],
-   regress:["Back knee on the floor","Angle your body away from your front knee","Elevate the front foot on a sofa/chair"]},
+   cues:["Set up in a push-up position and bring one foot up beside the same-side hand","Drop your elbow down as low as it will go without forcing — breathe out, sinking into your hip","Slowly rotate your body, reaching your arm up","Bring your elbow back down, as close to the floor as you can","Use your breath to relax your body","Repeat 10 times then switch to the other side"],
+   lookFor:["Not able to get your elbow beside your heel","Differences between sides","Shin not staying vertical or knee flaring out","Pain or discomfort in the back leg","Being too tense — use deep breaths to relax"],
+   regress:["Put your back knee on the floor","Angle your body away from your front knee","Elevate front foot on sofa/chair/stairs","Wiggle at the bottom position, rather than reps"]},
   {n:"Zenith Rotations", pose:"quadrupedReach", s:"5x hand on head + 5x hand on back, each side", t:5, sides:true,
-   cues:["From all fours, sit your hips back to your heels","Hand on back of head, rotate your chest up — 5 reps, exhale at the top","Repeat on that side with hand on middle of back, then switch sides"],
-   regress:["Cushions between your heels and bum","Keep your hand away from your body","Do them seated, using your other arm for support"]},
+   cues:["From all fours, sit your hips back to your heels","Put one hand on the back of your head (external rotation)","Slowly rotate your chest up, rotating from your upper back","Deeply exhale out at the top of each rep to try and \u201cpull\u201d yourself further, for 5 reps","Repeat on the other side","Then go back to the first side & repeat with your hand on the middle of your back (internal rotation)"],
+   lookFor:["Difference in range of motion between sides","Discomfort in the external and/or internal rotated position","Shoulder blades rolling up/rounding","Turning your head instead of rotating your upper back","Bending from the wrist instead of rotating upper back","Hips or lower back rotating"],
+   regress:["Put cushions between your heels & bum","Keep your hand away from your body","Hold end position with breaths instead of reps","Do them seated, using your other arm for support"]},
   {n:"Side Stretches", pose:"standSideBend", s:"10x each side", t:10, sides:true,
-   cues:["Stand by a post/frame — outside arm overhead, inside arm at hip height","Lean your body out to the side, stretching down side/lats/hips","Move in and out of the stretch for 10 reps"],
-   regress:["Lean without anchoring on a post/frame","Stretch with your hip against a wall for support","Cross arms overhead instead of straight"]},
+   cues:["Stand next to a post or door frame","Outside arm grabs the post/frame overhead, inside arm grabs around hip height","Holding on, lean your body out to the side, stretching down your side, lats and hips","Keep your breathing relaxed, and perform 10 reps moving in and out of the stretch","Experiment with your hand, feet & body position to feel the stretch in different areas","Repeat on other side"],
+   lookFor:["Reduced range or differences between sides","Differences in stretch intensity on one side/area compared to the other, even if it looks the same","Twisting or head turning"],
+   regress:["Stand & lean without anchoring on a post/frame","Stretch with your hip on a wall for support","Cross arms overhead instead of straight"]},
   {n:"Hip Hikes", pose:"standHipHike", s:"10x each side", t:10, sides:true,
-   cues:["Stand tall, hands on hips, bend one knee so the foot's behind you","Drop that hip below the straight knee, then hike it up above it","Return to in-line and repeat"],
-   regress:["Hold onto a support for balance","Just focus on hiking up or dropping down","Sideways marching or wiggling"]},
+   cues:["Stand tall, hands on hips","Bend your knee so your foot's behind you","Starting with your knees in line, drop your hip so your bent knee moves below the straight knee","Then, hike your hip up until your knees are in line","Finish by hiking your hip further so your bent knee moves higher than the straight one","Return to in line, and repeat 10 times","Repeat on other side"],
+   lookFor:["Clunky or uncontrolled movement","Knee bending or excessive lower back arching","Leaning torso instead of moving the pelvis","Lack of balance or excessive wobbling"],
+   regress:["Hold onto a support for balance","Just focus on hiking up or dropping down","Sideways \u201cmarching\u201d or wiggling"]},
   {n:"Thoracic Bridge Press", pose:"bridgeSideArmUp", s:"10x each side", t:10, sides:true,
-   cues:["From seated, lift your hips up onto hands and feet","Shift weight to one arm, press down and lift your whole body higher","Reach the free arm away, lower with control"],
-   regress:["Reduce the angle using a sofa/bed/chair","Tabletop bridge","Wall biceps stretch"]},
+   cues:["From seated, lift your hips up so you're on your hands and feet","Transfer your weight to one arm and press down hard, lifting your whole body higher","Contract your glutes & lift your hips up until they're extended and your bottom arm is straight","As you lift, reach your free arm away from your hips, keeping your neck & breathing relaxed","With control, lower down then repeat for 10 reps","Repeat on other side"],
+   lookFor:["\u201cCollapsing\u201d on your shoulder","Lots of shaking or instability","Difference in strength or endurance between sides","Shape of your spine — arched, hinged or flat?"],
+   regress:["Reducing the angle using a sofa/bed/chair","Tabletop bridge","Wall biceps stretch"]},
   {n:"Assisted Split Squat", pose:"splitSquatAssisted", s:"10x each side", t:10, sides:true,
-   cues:["Hold onto a post/wall in a long stance","Lunge deeply, knee tracking as far over the front foot as possible","Use your arms to sink lower — aim for bum to heel"],
-   regress:["Elevate your front foot","Push on your thigh with your hands to stand","Only lower down, then assist yourself back up"]},
+   cues:["Place yourself between posts/a door frame or next to a wall in a long stance","While holding on, lunge deeply, moving your knee as far over your front foot as possible","Adjust your feet positions if necessary","Use your arms to push yourself down further — aim for bum to heel","Slowly stand back up without moving your feet","Repeat for 10 reps, trying to get further & lower each time","Repeat on the other side"],
+   lookFor:["Heel lifting","Knee pain or discomfort","Your hips moving sideways on one or both sides","A difference in how far your knee goes each side"],
+   regress:["Elevate your front foot","Use your hands pushing on your thigh to stand","Only lower down, then assist yourself back up"]},
   {n:"Unassisted Split Squat", pose:"splitSquatFree", s:"10x each side", t:10, sides:true,
-   cues:["Same setup as Assisted Split Squat, but don't hold onto anything","Grip the ground with your front toes and pull yourself down","Push from the back leg, keep your core engaged"],
+   cues:["Set up exactly the same as Assisted Split Squats, but this time don't hold onto anything","Grip the ground with your toes on the front foot & actively \u201cpull\u201d yourself forwards & down, trying to match the assisted depth","Push forwards from your back leg for some extra range of motion, keeping your core engaged","Go slow and aim for smooth reps with minimal wobbles — repeat for 10 reps, then switch sides"],
+   lookFor:["A difference in range between these & your Assisted Split Squats","Difference in range between your legs","Your hips moving sideways on one or both sides","Your front foot turning out to the side"],
    regress:["Assisted Split Squats, using as little assistance as possible","Isometric holds at different heights","Slow negative reps, then assist yourself back up"]},
   {n:"Side Plank Marches", pose:"sidePlankMarch", s:"10x each side", t:10, sides:true,
-   cues:["Lie on your side, bottom elbow down, feet staggered, lift up","Shift weight to one leg, bring the other knee to your chest","Keep a straight line from shoulder to hip to ankle"],
-   regress:["Hold a Side Plank without marching","Side Plank on knees","Elevated Side Plank Marches (arm on sofa/chair)"]},
+   cues:["Lie on your side, completely straight","Put your bottom elbow (not hand) on the floor, stagger your feet, then lift your body up","Transfer your weight slowly to one leg, then bend your other leg, bringing your knee to your chest","Maintain a straight line from shoulder, hip, to ankle","Replace your leg, then repeat with the other leg","Alternate legs (\u201cmarch\u201d) for 10 reps, then change sides and repeat"],
+   lookFor:["A difference between sides or legs","Your body bending, hips lifting, shoulder dropping etc. as you move your legs","Rushing through the movement","Pain in knees, shoulders, groin or adductors"],
+   regress:["Hold a Side Plank (without marching)","Side Plank on knees (lift top leg option)","Elevated Side Plank Marches (arm on sofa/chair)","Hip Supported Side Plank Marches"]},
   {n:"Elbow Withdrawal Lunges", pose:"lungeElbowsBack", s:"10x each side", t:10, sides:true,
-   cues:["Draw elbows back, hands at your sides, squeeze shoulder blades","Step one foot back and slowly drop your knee to gently tap the floor","Bring the foot back to standing in one motion, keeping shoulders set"],
-   regress:["Hold onto a wall/post, one side at a time","Practise the lunge and elbow position separately","Reduce the lunge range of motion"]},
+   cues:["Draw your elbows back until your hands are at your sides","Stay tall, squeeze your shoulder blades back, keep your shoulders down, & neck relaxed","Step one foot back and slowly drop your knee, tapping the floor gently (front shin stays vertical)","In one motion, bring your foot back up to standing and repeat for 10 reps","Keep your shoulder/elbow position throughout","Repeat on the other leg"],
+   lookFor:["Differences in strength/endurance between sides","One shoulder/elbow being higher than the other","Your knee going over your toes or flaring sideways","Your hips moving out to the side","Shoulders rounding, hands moving forwards or elbows flaring out"],
+   regress:["Hold onto a wall/post, doing the Elbow Withdrawal one side at a time","Practise the lunge & elbow position separately","Reduce the lunge range of motion"]},
   {n:"Crossed Arm Overhead Kickstand Squat", pose:"squatCrossedArms", s:"10x each side", t:10, sides:true,
-   cues:["Grab your elbows overhead, one heel elevated (ball of foot down)","Pull yourself into a squat, more weight on the flat-foot side","Pause at the bottom, chest upright, arms staying up"],
-   regress:["Squat with your arms out in front","Elevate both heels generously (blocks/books)","Squat to a chair/sofa without relaxing at the bottom"]},
+   cues:["Grab your elbows above your head","With your feet in your squat width, replace the heel of one foot with the ball, so your heel is elevated","Pull yourself down into a squat, keeping more weight & focus on your flat-foot side","Pause briefly at the bottom, trying to keep your chest & torso upright without your arms dropping","Repeat with control for 10 reps, then switch your feet and repeat on the other side"],
+   lookFor:["Your upper body leaning too far forward","Your arms dropping","Shallow squat depth — aim for below parallel","Cranking your neck"],
+   regress:["Squat with your arms out in front","Use a generous heel elevation (such as blocks/books) underneath both heels","Squat to a chair/sofa, trying not to relax at the bottom"]},
   {n:"Single Leg Deadlifts", pose:"singleLegDeadlift", s:"10x each leg", t:10, sides:true,
-   cues:["Stand tall, brace like a plank, lift one foot off the ground","Hinge from the hips, reaching the back foot behind you","Drive back up by squeezing the glute, torso staying straight"],
-   regress:["Use a chair/sofa in front of you for balance","Elevate the back foot and practise hinging"]},
+   cues:["Stand straight, brace as if doing a plank, and lift one foot off the ground","Hinge from the hips, sending them back until you feel tension in the standing leg's hamstring, reaching back with your back foot","Back foot should stay pointed at your standing foot & keep your torso straight — don't just bend","Drive back up by squeezing your glutes, similar to the glute bridges","Repeat for 10 reps, then switch to the other side"],
+   lookFor:["Difference in balance or hamstring activation on either side","Hips moving differently on either leg","Rotating or twisting hips as you hinge","Bending your torso or rounding your shoulders instead of hinging"],
+   regress:["Use a chair/sofa in front of you for balance","Elevate back foot & practice hinging"]},
 ];
 const TESTS = [
   {n:"Visual Assessment", pose:"standNeutral", sides:false, scoreless:true,
@@ -597,6 +621,11 @@ function renderStep(){
     ${lastHtml}
     ${notesHtml}
     <ul class="ov-cues">${ex.cues.map(c=>`<li>${c}</li>`).join('')}</ul>
+    <button type="button" class="ov-toggle" id="ovLookForToggle">What to look for</button>
+    <div class="ov-regress" id="ovLookForBox">
+      <p>What to look for</p>
+      <ul>${ex.lookFor.map(l=>`<li>${l}</li>`).join('')}</ul>
+    </div>
     <button type="button" class="ov-toggle" id="ovRegressToggle">Need an easier option?</button>
     <div class="ov-regress" id="ovRegressBox">
       <p>Regressions</p>
@@ -619,6 +648,11 @@ function renderStep(){
       e.target.textContent = box.classList.contains('open') ? 'Hide past notes' : `Past notes (${noteHist.length})`;
     });
   }
+  document.getElementById('ovLookForToggle').addEventListener('click', e=>{
+    const box = document.getElementById('ovLookForBox');
+    box.classList.toggle('open');
+    e.target.textContent = box.classList.contains('open') ? 'Hide what to look for' : 'What to look for';
+  });
   document.getElementById('ovRegressToggle').addEventListener('click', e=>{
     const box = document.getElementById('ovRegressBox');
     box.classList.toggle('open');
@@ -1170,6 +1204,18 @@ function renderHistory(){
     const order = sessions.map((_,i)=>i).reverse();
     sh.innerHTML = order.map(i=>{
       const s = sessions[i];
+      if(i===deletingSessionIdx){
+        return `<div class="hist-item"><div class="hist-item-main"><div class="hist-date">${s.date}</div>
+          <div class="hist-meta" style="color:var(--challenge);">Delete this session? This can't be undone.</div></div>
+          <div class="hist-actions"><button type="button" class="sess-del-yes" data-i="${i}">Yes, delete</button><button type="button" class="sess-del-no" data-i="${i}">Cancel</button></div></div>`;
+      }
+      if(i===editingSessionIdx){
+        return `<div class="hist-item-edit" data-i="${i}">
+          <label class="small">Date<br><input type="date" class="edit-date" value="${s.date}"></label>
+          <label class="small">Overall note<br><input type="text" class="edit-note note-input" value="${(s.note||'').replace(/"/g,'&quot;')}"></label>
+          <div class="hist-actions" style="margin-top:8px;"><button type="button" class="sess-save" data-i="${i}">Save</button><button type="button" class="sess-cancel" data-i="${i}">Cancel</button></div>
+        </div>`;
+      }
       const counts = {};
       s.entries.forEach(e=>{ if(e.difficulty) counts[e.difficulty]=(counts[e.difficulty]||0)+1; });
       const summary = DIFFS.filter(d=>counts[d]).map(d=>`${counts[d]} ${d}`).join(', ');
@@ -1177,8 +1223,23 @@ function renderHistory(){
         <div class="hist-meta">${summary || 'No ratings'}${s.note?' — '+s.note:''}</div></div>
         <div class="hist-actions"><button type="button" class="sess-edit" data-i="${i}">Edit</button><button type="button" class="sess-del" data-i="${i}">Delete</button></div></div>`;
     }).join('');
-    sh.querySelectorAll('.sess-edit').forEach(b=>b.addEventListener('click', ()=>editSession(+b.dataset.i)));
-    sh.querySelectorAll('.sess-del').forEach(b=>b.addEventListener('click', ()=>deleteSession(+b.dataset.i)));
+    sh.querySelectorAll('.sess-edit').forEach(b=>b.addEventListener('click', ()=>{ editingSessionIdx=+b.dataset.i; deletingSessionIdx=null; renderHistory(); }));
+    sh.querySelectorAll('.sess-del').forEach(b=>b.addEventListener('click', ()=>{ deletingSessionIdx=+b.dataset.i; editingSessionIdx=null; renderHistory(); }));
+    sh.querySelectorAll('.sess-del-yes').forEach(b=>b.addEventListener('click', ()=>{ deleteSessionNow(+b.dataset.i); deletingSessionIdx=null; }));
+    sh.querySelectorAll('.sess-del-no').forEach(b=>b.addEventListener('click', ()=>{ deletingSessionIdx=null; renderHistory(); }));
+    sh.querySelectorAll('.sess-cancel').forEach(b=>b.addEventListener('click', ()=>{ editingSessionIdx=null; renderHistory(); }));
+    sh.querySelectorAll('.sess-save').forEach(b=>b.addEventListener('click', ()=>{
+      const i = +b.dataset.i;
+      const wrap = sh.querySelector(`.hist-item-edit[data-i="${i}"]`);
+      const newDate = wrap.querySelector('.edit-date').value || sessions[i].date;
+      const newNote = wrap.querySelector('.edit-note').value;
+      sessions[i].date = newDate;
+      sessions[i].note = newNote;
+      sessions.sort((a,b)=>a.date.localeCompare(b.date));
+      try{ localStorage.setItem('smm_sessions', JSON.stringify(sessions)); }catch(e){}
+      editingSessionIdx = null;
+      updateStats(); renderHistory();
+    }));
   }
   const th = document.getElementById('testHistory');
   if(tests.length===0){ th.innerHTML='<p class="empty">No tests logged yet.</p>'; }
@@ -1186,50 +1247,53 @@ function renderHistory(){
     const order = tests.map((_,i)=>i).reverse();
     th.innerHTML = order.map(i=>{
       const t = tests[i];
+      if(i===deletingTestIdx){
+        return `<div class="hist-item"><div class="hist-item-main"><div class="hist-date">${t.date} — ${t.type}</div>
+          <div class="hist-meta" style="color:var(--challenge);">Delete this test result? This can't be undone.</div></div>
+          <div class="hist-actions"><button type="button" class="test-del-yes" data-i="${i}">Yes, delete</button><button type="button" class="test-del-no" data-i="${i}">Cancel</button></div></div>`;
+      }
+      if(i===editingTestIdx){
+        return `<div class="hist-item-edit" data-i="${i}">
+          <label class="small">Date<br><input type="date" class="edit-date" value="${t.date}"></label>
+          <label class="small">Type<br><select class="edit-type"><option${t.type==='Initial Test'?' selected':''}>Initial Test</option><option${t.type==='Retest'?' selected':''}>Retest</option></select></label>
+          <div class="hist-actions" style="margin-top:8px;"><button type="button" class="test-save" data-i="${i}">Save</button><button type="button" class="test-cancel" data-i="${i}">Cancel</button></div>
+        </div>`;
+      }
       return `<div class="hist-item"><div class="hist-item-main"><div class="hist-date">${t.date} — ${t.type}</div>
         <div class="hist-meta">${t.scores.length} test(s) recorded</div></div>
         <div class="hist-actions"><button type="button" class="test-edit" data-i="${i}">Edit</button><button type="button" class="test-del" data-i="${i}">Delete</button></div></div>`;
     }).join('');
-    th.querySelectorAll('.test-edit').forEach(b=>b.addEventListener('click', ()=>editTest(+b.dataset.i)));
-    th.querySelectorAll('.test-del').forEach(b=>b.addEventListener('click', ()=>deleteTest(+b.dataset.i)));
+    th.querySelectorAll('.test-edit').forEach(b=>b.addEventListener('click', ()=>{ editingTestIdx=+b.dataset.i; deletingTestIdx=null; renderHistory(); }));
+    th.querySelectorAll('.test-del').forEach(b=>b.addEventListener('click', ()=>{ deletingTestIdx=+b.dataset.i; editingTestIdx=null; renderHistory(); }));
+    th.querySelectorAll('.test-del-yes').forEach(b=>b.addEventListener('click', ()=>{ deleteTestNow(+b.dataset.i); deletingTestIdx=null; }));
+    th.querySelectorAll('.test-del-no').forEach(b=>b.addEventListener('click', ()=>{ deletingTestIdx=null; renderHistory(); }));
+    th.querySelectorAll('.test-cancel').forEach(b=>b.addEventListener('click', ()=>{ editingTestIdx=null; renderHistory(); }));
+    th.querySelectorAll('.test-save').forEach(b=>b.addEventListener('click', ()=>{
+      const i = +b.dataset.i;
+      const wrap = th.querySelector(`.hist-item-edit[data-i="${i}"]`);
+      const newDate = wrap.querySelector('.edit-date').value || tests[i].date;
+      const newType = wrap.querySelector('.edit-type').value;
+      tests[i].date = newDate;
+      tests[i].type = newType;
+      tests.sort((a,b)=>a.date.localeCompare(b.date));
+      try{ localStorage.setItem('smm_tests', JSON.stringify(tests)); }catch(e){}
+      editingTestIdx = null;
+      updateStats(); populateChartSelect(); renderHistory();
+    }));
   }
   populateChartSelect();
   drawChart();
   drawExerciseChart();
 }
 
-function editSession(i){
-  const s = sessions[i];
-  const newDate = prompt('Date (YYYY-MM-DD)', s.date);
-  if(newDate===null) return;
-  const newNote = prompt('Overall note for this session', s.note||'');
-  if(newNote===null) return;
-  s.date = newDate.trim() || s.date;
-  s.note = newNote;
-  sessions.sort((a,b)=>a.date.localeCompare(b.date));
-  try{ localStorage.setItem('smm_sessions', JSON.stringify(sessions)); }catch(e){}
-  updateStats(); renderHistory();
-}
-function deleteSession(i){
-  if(!confirm('Delete this session? This can\'t be undone.')) return;
+let editingSessionIdx = null, deletingSessionIdx = null, editingTestIdx = null, deletingTestIdx = null;
+
+function deleteSessionNow(i){
   sessions.splice(i,1);
   try{ localStorage.setItem('smm_sessions', JSON.stringify(sessions)); }catch(e){}
   updateStats(); renderHistory();
 }
-function editTest(i){
-  const t = tests[i];
-  const newDate = prompt('Date (YYYY-MM-DD)', t.date);
-  if(newDate===null) return;
-  const newType = prompt('Type (Initial Test / Retest)', t.type);
-  if(newType===null) return;
-  t.date = newDate.trim() || t.date;
-  t.type = newType.trim() || t.type;
-  tests.sort((a,b)=>a.date.localeCompare(b.date));
-  try{ localStorage.setItem('smm_tests', JSON.stringify(tests)); }catch(e){}
-  updateStats(); renderHistory();
-}
-function deleteTest(i){
-  if(!confirm('Delete this test result? This can\'t be undone.')) return;
+function deleteTestNow(i){
   tests.splice(i,1);
   try{ localStorage.setItem('smm_tests', JSON.stringify(tests)); }catch(e){}
   updateStats(); populateChartSelect(); renderHistory();
@@ -1269,6 +1333,7 @@ async function doExportJson(){
 }
 document.getElementById('exportBtn').addEventListener('click', doExportJson);
 document.getElementById('exportReminderBtn').addEventListener('click', doExportJson);
+let pendingImportData = null;
 document.getElementById('importInput').addEventListener('change', e=>{
   const file = e.target.files[0];
   if(!file) return;
@@ -1279,20 +1344,33 @@ document.getElementById('importInput').addEventListener('change', e=>{
     if(!data || !Array.isArray(data.sessions) || !Array.isArray(data.tests)){
       alert('That file doesn\'t look like a valid backup.'); return;
     }
-    if(!confirm(`Import ${data.sessions.length} session(s) and ${data.tests.length} test result(s)? This replaces the data currently in this browser.`)) return;
-    sessions = data.sessions;
-    tests = data.tests;
-    refImages = data.images || {};
-    try{
-      localStorage.setItem('smm_sessions', JSON.stringify(sessions));
-      localStorage.setItem('smm_tests', JSON.stringify(tests));
-      localStorage.setItem('smm_images', JSON.stringify(refImages));
-    }catch(err){}
-    updateStats(); populateChartSelect(); renderHistory();
-    alert('Import complete.');
+    pendingImportData = data;
+    const box = document.getElementById('importConfirmBox');
+    box.style.display = 'block';
+    document.getElementById('importConfirmText').textContent =
+      `Import ${data.sessions.length} session(s) and ${data.tests.length} test result(s)? This replaces the data currently in this browser.`;
+    box.scrollIntoView({behavior:'smooth', block:'center'});
   };
   reader.readAsText(file);
   e.target.value = '';
+});
+document.getElementById('importConfirmBtn').addEventListener('click', ()=>{
+  if(!pendingImportData) return;
+  sessions = pendingImportData.sessions;
+  tests = pendingImportData.tests;
+  refImages = pendingImportData.images || {};
+  try{
+    localStorage.setItem('smm_sessions', JSON.stringify(sessions));
+    localStorage.setItem('smm_tests', JSON.stringify(tests));
+    localStorage.setItem('smm_images', JSON.stringify(refImages));
+  }catch(err){}
+  pendingImportData = null;
+  document.getElementById('importConfirmBox').style.display = 'none';
+  updateStats(); populateChartSelect(); renderHistory();
+});
+document.getElementById('importCancelBtn').addEventListener('click', ()=>{
+  pendingImportData = null;
+  document.getElementById('importConfirmBox').style.display = 'none';
 });
 
 // ---- CSV exports (view-only, spreadsheet-friendly) ----
