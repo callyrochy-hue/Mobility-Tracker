@@ -35,12 +35,17 @@ body{
 .wrap{max-width:760px; margin:0 auto; padding:28px 20px 80px;}
 header.top{margin-bottom:22px;}
 h1{font-family:var(--font-head); font-weight:600; font-size:2.1rem; margin:0 0 4px; color:var(--forest); letter-spacing:-0.01em;}
+.title-row{display:flex; align-items:flex-start; justify-content:space-between; gap:10px;}
+.title-row h1{margin-bottom:0;}
+.theme-toggle{background:var(--bg-panel); border:1px solid var(--line); border-radius:50%; width:38px; height:38px; font-size:1.1rem; line-height:1; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center;}
+.stat.overdue{border-color:var(--impossible);}
+.stat.overdue .num{color:var(--impossible);}
 .sub{color:var(--ink-soft); font-size:0.95rem; margin:0 0 18px; max-width:52ch;}
 .stats{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:6px;}
 .stat{background:var(--bg-panel); border:1px solid var(--line); border-radius:8px; padding:10px 14px; min-width:118px;}
 .stat .num{font-family:var(--font-head); font-size:1.5rem; font-weight:600; color:var(--forest);}
 .stat .lbl{font-size:0.72rem; color:var(--ink-soft); margin-top:2px;}
-nav.tabs{display:flex; gap:2px; margin:26px 0 20px; border-bottom:1px solid var(--line);}
+nav.tabs{display:flex; gap:2px; margin:26px 0 20px; border-bottom:1px solid var(--line); position:sticky; top:env(safe-area-inset-top, 0px); background:var(--bg); z-index:20;}
 nav.tabs button{
   background:none; border:none; font-family:var(--font-body); font-size:0.92rem; font-weight:500;
   color:var(--ink-soft); padding:10px 4px; margin-right:22px; cursor:pointer; border-bottom:2px solid transparent;
@@ -87,6 +92,38 @@ button.primary:hover{opacity:0.9;}
 .hist-meta{font-size:0.8rem; color:var(--ink-soft); margin-top:2px;}
 .empty{color:var(--ink-soft); font-size:0.9rem; padding:20px 0;}
 select#chartTest{margin-bottom:14px;}
+select#chartExercise{margin-bottom:14px;}
+
+/* Collapsible history sections */
+.hist-section{border:1px solid var(--line); border-radius:8px; margin-bottom:12px; background:var(--bg-panel); overflow:hidden;}
+.hist-section summary{font-family:var(--font-head); font-weight:600; font-size:1.05rem; color:var(--forest); padding:14px 16px; cursor:pointer; list-style:none; display:flex; align-items:center; justify-content:space-between;}
+.hist-section summary::-webkit-details-marker{display:none;}
+.hist-section summary::after{content:'+'; font-size:1.3rem; color:var(--ink-soft); font-weight:400;}
+.hist-section[open] summary::after{content:'–';}
+.hist-section summary:hover{color:var(--gold);}
+.hist-section-body{padding:2px 16px 18px;}
+.hist-subhead{font-family:var(--font-head); font-weight:600; font-size:0.92rem; color:var(--forest); margin:22px 0 8px;}
+.hist-subhead:first-child{margin-top:0;}
+
+/* Scorecard */
+.scorecard-group{margin-bottom:18px;}
+.scorecard-label{font-size:0.78rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px;}
+.scorecard-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; min-width:0;}
+.scorecard-item{background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:9px 10px; min-width:0; overflow:hidden;}
+.scorecard-name{font-size:0.76rem; color:var(--ink-soft); margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.scorecard-val{display:flex; align-items:baseline; gap:5px; min-width:0; flex-wrap:wrap;}
+.scorecard-val .v{font-family:var(--font-head); font-weight:600; font-size:1.15rem; color:var(--forest);}
+.scorecard-val .trend{font-size:0.8rem;}
+.scorecard-val .trend.up{color:var(--easy);}
+.scorecard-val .trend.down{color:var(--impossible);}
+.scorecard-val .trend.flat{color:var(--ink-soft);}
+.scorecard-empty{color:var(--ink-soft); font-size:0.82rem; grid-column:1/-1;}
+
+/* Trend mode toggle */
+.trend-toggle{display:flex; gap:6px; margin-bottom:12px;}
+.trend-toggle-btn{flex:1; padding:8px; border-radius:6px; border:1px solid var(--line); background:var(--bg); color:var(--ink-soft); font-family:var(--font-body); font-weight:600; font-size:0.85rem; cursor:pointer;}
+.trend-toggle-btn.active{background:var(--forest); color:var(--bg); border-color:var(--forest);}
+.bar-empty-text{font-size:0.82rem; color:var(--ink-soft);}
 
 /* Guided flow overlay (shared by session + tests) */
 .overlay{display:none; position:fixed; inset:0; background:var(--bg); z-index:100; overflow-y:auto;}
@@ -115,7 +152,10 @@ select#chartTest{margin-bottom:14px;}
 .ref-img-empty{display:flex; align-items:center; justify-content:center; height:120px; border:1px dashed var(--line); border-radius:6px; color:var(--ink-soft); font-size:0.85rem; cursor:pointer; margin-bottom:16px; background:var(--bg-panel);}
 .ref-img-empty:hover{color:var(--forest); border-color:var(--gold);}
 .ref-img-wrap{margin-bottom:16px;}
-.ref-img-wrap img{width:100%; max-height:280px; object-fit:cover; border-radius:6px; border:1px solid var(--line); display:block;}
+.ref-img-wrap img{width:100%; max-height:340px; object-fit:contain; background:var(--bg); border-radius:6px; border:1px solid var(--line); display:block;}
+.ov-divider{border-top:1px solid var(--line); margin:22px 0 18px;}
+.toast{position:fixed; left:50%; bottom:28px; transform:translateX(-50%) translateY(16px); background:var(--forest); color:var(--bg); padding:12px 22px; border-radius:30px; font-family:var(--font-body); font-weight:600; font-size:0.88rem; opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease; z-index:300; box-shadow:0 4px 14px rgba(0,0,0,0.18);}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 .ref-img-actions{display:flex; gap:8px; margin-top:6px;}
 .ref-img-btn{font-size:0.76rem; padding:5px 11px; border-radius:14px; border:1px solid var(--line); background:var(--bg-panel); color:var(--ink-soft); cursor:pointer;}
 .ref-img-btn.ref-remove{border:none; background:none; text-decoration:underline;}
@@ -151,7 +191,8 @@ select#chartTest{margin-bottom:14px;}
 .ov-diffs button.sel[data-d="Challenging"]{background:var(--challenge); color:#fff; border-color:var(--challenge);}
 .ov-diffs button.sel[data-d="Impossible"]{background:var(--impossible); color:#fff; border-color:var(--impossible);}
 .ov-note{width:100%; margin-bottom:20px;}
-.ov-nav{display:flex; gap:10px;}
+.ov-nav{display:flex; gap:10px; position:sticky; bottom:0; background:var(--bg); border-top:1px solid var(--line); padding:14px 0 max(14px, env(safe-area-inset-bottom, 0px)); margin-top:8px;}
+.ov-nav button{flex:1;}
 .ov-nav button.secondary{background:none; border:1px solid var(--line); color:var(--ink); border-radius:8px; padding:11px 18px; font-family:var(--font-body); font-size:0.9rem; cursor:pointer;}
 .sum-title{font-family:var(--font-head); font-weight:600; font-size:1.5rem; color:var(--forest); margin:0 0 16px;}
 .sum-row{display:flex; justify-content:space-between; gap:10px; border-top:1px solid var(--line); padding:10px 0; font-size:0.88rem;}
@@ -193,13 +234,16 @@ svg.chart{width:100%; height:200px; overflow:visible;}
 <body>
 <div class="wrap">
   <header class="top">
-    <h1>SMM Tracker</h1>
+    <div class="title-row">
+      <h1>SMM Tracker</h1>
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">🌙</button>
+    </div>
     <p class="sub">A place to log your Simplistic Mobility Method sessions and retests, so progress isn't just a feeling.</p>
     <div class="stats">
       <div class="stat"><div class="num" id="statStreak">0</div><div class="lbl">day streak</div></div>
       <div class="stat"><div class="num" id="statSessions">0</div><div class="lbl">sessions logged</div></div>
       <div class="stat"><div class="num" id="statLast">–</div><div class="lbl">last session</div></div>
-      <div class="stat"><div class="num" id="statRetest">–</div><div class="lbl">next retest</div></div>
+      <div class="stat" id="statRetestBox"><div class="num" id="statRetest">–</div><div class="lbl">next retest</div></div>
     </div>
     <div class="tip-card" id="tipCard">
       <div class="tip-label">From the booklet</div>
@@ -284,59 +328,123 @@ svg.chart{width:100%; height:200px; overflow:visible;}
   </div>
 
   <section id="tab-history" class="panel">
-    <h3 style="font-family:var(--font-head); font-weight:600; margin-bottom:6px;">Consistency</h3>
-    <div class="stats" style="margin-bottom:16px;">
-      <div class="stat"><div class="num" id="calStreak">0</div><div class="lbl">day streak</div></div>
-      <div class="stat"><div class="num" id="calLongest">0</div><div class="lbl">longest streak</div></div>
-      <div class="stat"><div class="num" id="calWeek">0</div><div class="lbl">this week <span class="wk-target">/ 4 target</span></div></div>
-    </div>
-    <div class="week-progress"><div class="week-progress-fill" id="weekFill"></div></div>
-    <p class="hint" id="weekMsg" style="margin:0 0 20px;"></p>
-    <div class="cal-header">
-      <button type="button" class="secondary" id="calPrev">‹</button>
-      <div class="cal-label" id="calLabel"></div>
-      <button type="button" class="secondary" id="calNext">›</button>
-    </div>
-    <div class="cal-dow"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
-    <div class="cal-grid" id="calGrid"></div>
-
-    <h3 style="font-family:var(--font-head); font-weight:600; margin:30px 0 6px;">Left / Right balance</h3>
-    <p class="hint" style="margin:0 0 12px;">Flagged when one side has consistently scored or performed lower over your last few entries — the booklet cares about symmetry as much as the raw numbers.</p>
-    <div id="asymmetryList"></div>
-
-    <h3 style="font-family:var(--font-head); font-weight:600; margin:30px 0 6px;">Test progress</h3>
-    <select id="chartTest"></select>
-    <svg class="chart" id="chartSvg" viewBox="0 0 640 200" preserveAspectRatio="none"></svg>
-    <div class="chart-legend" id="chartLegend"></div>
-
-    <h3 style="font-family:var(--font-head); font-weight:600; margin:30px 0 6px;">Exercise progress</h3>
-    <select id="chartExercise"></select>
-    <svg class="chart" id="exChartSvg" viewBox="0 0 640 200" preserveAspectRatio="none"></svg>
-
-    <h3 style="font-family:var(--font-head); font-weight:600; margin:28px 0 6px;">Session log</h3>
-    <div id="sessionHistory"><p class="empty">No sessions logged yet.</p></div>
-
-    <h3 style="font-family:var(--font-head); font-weight:600; margin:28px 0 6px;">Test log</h3>
-    <div id="testHistory"><p class="empty">No tests logged yet.</p></div>
-
-    <h3 style="font-family:var(--font-head); font-weight:600; margin:30px 0 6px;">Backup</h3>
-    <p class="hint" style="margin:0 0 14px;">Everything here lives only in this browser. Export a backup file now and then, and you can bring it all back — sessions, tests, and reference photos — after clearing your cache or on a different browser or device.</p>
-    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;">
-      <button type="button" class="primary" id="exportBtn">Export data</button>
-      <label class="secondary-btn" id="importLabel">Import data<input type="file" accept="application/json" id="importInput" hidden></label>
-    </div>
-    <div class="resume-banner" id="importConfirmBox" style="display:none;">
-      <p id="importConfirmText"></p>
-      <div class="resume-banner-actions">
-        <button type="button" class="primary" id="importConfirmBtn">Yes, import & replace</button>
-        <button type="button" class="secondary-btn" id="importCancelBtn">Cancel</button>
+    <details class="hist-section" open>
+      <summary>Overview</summary>
+      <div class="hist-section-body">
+        <p class="hint" style="margin:0 0 14px;">Latest result for everything, with how it's moved since last time.</p>
+        <div class="scorecard-group">
+          <div class="scorecard-label">Tests</div>
+          <div class="scorecard-grid" id="scorecardTests"></div>
+        </div>
+        <div class="scorecard-group">
+          <div class="scorecard-label">Exercises</div>
+          <div class="scorecard-grid" id="scorecardExercises"></div>
+        </div>
+        <h4 class="hist-subhead">Overall exercise trend</h4>
+        <p class="hint" style="margin:0 0 10px;">Average difficulty across every rated exercise, per session — the single "is this generally getting easier" line.</p>
+        <svg class="chart" id="overallChartSvg" viewBox="0 0 640 200" preserveAspectRatio="none"></svg>
+        <h4 class="hist-subhead">Overall test trend</h4>
+        <p class="hint" style="margin:0 0 10px;">Average score across every scored test, per test date — the same "generally improving" line for your tests.</p>
+        <svg class="chart" id="overallTestChartSvg" viewBox="0 0 640 200" preserveAspectRatio="none"></svg>
       </div>
-    </div>
-    <p class="hint" style="margin:0 0 10px;">Want to see it in a spreadsheet (Google Sheets, Excel)? These export as CSV — handy for viewing or your own charts, but they're one-way: import only reads the JSON backup above.</p>
-    <div style="display:flex; gap:10px; flex-wrap:wrap;">
-      <button type="button" class="secondary-btn" id="exportSessionsCsv">Export sessions (CSV)</button>
-      <button type="button" class="secondary-btn" id="exportTestsCsv">Export tests (CSV)</button>
-    </div>
+    </details>
+
+    <details class="hist-section">
+      <summary>Consistency</summary>
+      <div class="hist-section-body">
+        <div class="stats" style="margin-bottom:16px;">
+          <div class="stat"><div class="num" id="calStreak">0</div><div class="lbl">day streak</div></div>
+          <div class="stat"><div class="num" id="calLongest">0</div><div class="lbl">longest streak</div></div>
+          <div class="stat"><div class="num" id="calWeek">0</div><div class="lbl">this week <span class="wk-target">/ 4 target</span></div></div>
+        </div>
+        <div class="week-progress"><div class="week-progress-fill" id="weekFill"></div></div>
+        <p class="hint" id="weekMsg" style="margin:0 0 20px;"></p>
+        <h4 class="hist-subhead">Sessions per week</h4>
+        <svg class="chart" id="weeklyBarSvg" viewBox="0 0 640 160" preserveAspectRatio="none" style="height:150px;"></svg>
+        <h4 class="hist-subhead">Calendar</h4>
+        <div class="cal-header">
+          <button type="button" class="secondary" id="calPrev">‹</button>
+          <div class="cal-label" id="calLabel"></div>
+          <button type="button" class="secondary" id="calNext">›</button>
+        </div>
+        <div class="cal-dow"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+    </details>
+
+    <details class="hist-section">
+      <summary>Left / Right balance</summary>
+      <div class="hist-section-body">
+        <p class="hint" style="margin:0 0 12px;">Flagged when one side has consistently scored or performed lower over your last few entries — the booklet cares about symmetry as much as the raw numbers.</p>
+        <div id="asymmetryList"></div>
+      </div>
+    </details>
+
+    <details class="hist-section">
+      <summary>Trends</summary>
+      <div class="hist-section-body">
+        <div class="trend-toggle">
+          <button type="button" class="trend-toggle-btn active" id="trendModeTest">Tests</button>
+          <button type="button" class="trend-toggle-btn" id="trendModeExercise">Exercises</button>
+        </div>
+        <div class="trend-toggle" id="exerciseMetricToggle" style="display:none;">
+          <button type="button" class="trend-toggle-btn active" id="metricDifficulty">Difficulty</button>
+          <button type="button" class="trend-toggle-btn" id="metricReps">Reps</button>
+        </div>
+        <select id="chartTest"></select>
+        <select id="chartExercise" style="display:none;"></select>
+        <svg class="chart" id="chartSvg" viewBox="0 0 640 200" preserveAspectRatio="none"></svg>
+        <div class="chart-legend" id="chartLegend"></div>
+      </div>
+    </details>
+
+    <details class="hist-section">
+      <summary>Notes</summary>
+      <div class="hist-section-body">
+        <p class="hint" style="margin:0 0 12px;">Every note you've left, across sessions and tests, newest first — search to see how one exercise's notes have changed over time.</p>
+        <input type="text" id="notesFilter" class="note-input" style="width:100%; margin-bottom:10px;" placeholder="Search notes (e.g. an exercise name)">
+        <div class="trend-toggle" id="notesCatToggle">
+          <button type="button" class="trend-toggle-btn active" data-cat="all">All</button>
+          <button type="button" class="trend-toggle-btn" data-cat="session">Session</button>
+          <button type="button" class="trend-toggle-btn" data-cat="exercise">Exercise</button>
+          <button type="button" class="trend-toggle-btn" data-cat="test">Test</button>
+        </div>
+        <div id="notesList"></div>
+      </div>
+    </details>
+
+    <details class="hist-section">
+      <summary>Session &amp; test logs</summary>
+      <div class="hist-section-body">
+        <h4 class="hist-subhead">Session log</h4>
+        <div id="sessionHistory"><p class="empty">No sessions logged yet.</p></div>
+        <h4 class="hist-subhead" style="margin-top:24px;">Test log</h4>
+        <div id="testHistory"><p class="empty">No tests logged yet.</p></div>
+      </div>
+    </details>
+
+    <details class="hist-section">
+      <summary>Backup</summary>
+      <div class="hist-section-body">
+        <p class="hint" style="margin:0 0 14px;">Everything here lives only in this browser. Export a backup file now and then, and you can bring it all back — sessions, tests, and reference photos — after clearing your cache or on a different browser or device.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;">
+          <button type="button" class="primary" id="exportBtn">Export data</button>
+          <label class="secondary-btn" id="importLabel">Import data<input type="file" accept="application/json" id="importInput" hidden></label>
+        </div>
+        <div class="resume-banner" id="importConfirmBox" style="display:none;">
+          <p id="importConfirmText"></p>
+          <div class="resume-banner-actions">
+            <button type="button" class="primary" id="importConfirmBtn">Yes, import & replace</button>
+            <button type="button" class="secondary-btn" id="importCancelBtn">Cancel</button>
+          </div>
+        </div>
+        <p class="hint" style="margin:0 0 10px;">Want to see it in a spreadsheet (Google Sheets, Excel)? These export as CSV — handy for viewing or your own charts, but they're one-way: import only reads the JSON backup above.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button type="button" class="secondary-btn" id="exportSessionsCsv">Export sessions (CSV)</button>
+          <button type="button" class="secondary-btn" id="exportTestsCsv">Export tests (CSV)</button>
+        </div>
+      </div>
+    </details>
   </section>
 </div>
 
@@ -508,6 +616,38 @@ try{ sessions = JSON.parse(localStorage.getItem('smm_sessions')||'[]'); }catch(e
 try{ tests = JSON.parse(localStorage.getItem('smm_tests')||'[]'); }catch(e){ tests=[]; }
 
 function todayStr(){ return new Date().toISOString().slice(0,10); }
+
+// ---- Theme toggle ----
+(function initTheme(){
+  let theme;
+  try{ theme = localStorage.getItem('smm_theme'); }catch(e){ theme = null; }
+  if(!theme) theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  applyTheme(theme);
+})();
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const btn = document.getElementById('themeToggle');
+  if(btn){
+    btn.textContent = t==='dark' ? '☀️' : '🌙';
+    btn.setAttribute('aria-label', t==='dark' ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+}
+document.getElementById('themeToggle').addEventListener('click', ()=>{
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current==='dark' ? 'light' : 'dark';
+  try{ localStorage.setItem('smm_theme', next); }catch(e){}
+  applyTheme(next);
+});
+
+let toastTimer = null;
+function showToast(msg){
+  const el = document.getElementById('toastEl');
+  if(!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2200);
+}
 document.getElementById('sessionDate').value = todayStr();
 document.getElementById('testDate').value = todayStr();
 
@@ -617,10 +757,14 @@ function renderStep(){
   ovBody.innerHTML = `
     <div class="ov-exname">${ex.n}</div>
     <div class="ov-scheme">${ex.s}</div>
-    ${imageBlock(ex.n)}
     ${lastHtml}
-    ${notesHtml}
+    ${repsBlock}
+    <div class="ov-rate-label">How did it go?</div>
+    <div class="ov-diffs">${DIFFS.map(d=>`<button type="button" data-d="${d}" class="${r.difficulty===d?'sel':''}">${d}</button>`).join('')}</div>
+    <input type="text" class="ov-note" id="ovNoteInput" placeholder="Note (optional)" value="${r.note.replace(/"/g,'&quot;')}">
+    <div class="ov-divider"></div>
     <ul class="ov-cues">${ex.cues.map(c=>`<li>${c}</li>`).join('')}</ul>
+    ${notesHtml}
     <button type="button" class="ov-toggle" id="ovLookForToggle">What to look for</button>
     <div class="ov-regress" id="ovLookForBox">
       <p>What to look for</p>
@@ -631,10 +775,7 @@ function renderStep(){
       <p>Regressions</p>
       <ul>${ex.regress.map(g=>`<li>${g}</li>`).join('')}</ul>
     </div>
-    ${repsBlock}
-    <div class="ov-rate-label">How did it go?</div>
-    <div class="ov-diffs">${DIFFS.map(d=>`<button type="button" data-d="${d}" class="${r.difficulty===d?'sel':''}">${d}</button>`).join('')}</div>
-    <input type="text" class="ov-note" id="ovNoteInput" placeholder="Note (optional)" value="${r.note.replace(/"/g,'&quot;')}">
+    ${imageBlock(ex.n)}
     <div class="ov-nav">
       ${ovIndex>0 ? '<button type="button" class="secondary" id="ovBack">Back</button>' : ''}
       <button type="button" class="primary" id="ovNext">${ovIndex===EXERCISES.length-1 ? 'Finish session' : 'Done — next exercise'}</button>
@@ -726,6 +867,7 @@ function renderSummary(){
     clearSessionProgress();
     overlay.classList.remove('open');
     updateStats();
+    showToast('Session saved ✓');
   });
 }
 
@@ -813,12 +955,13 @@ function renderTestStep(){
   else { lastHtml = `<div class="ov-last">Last time (${last.date}): <b>${last.v??'–'}</b>${last.note?` — ${last.note}`:''}</div>`; }
   tvBody.innerHTML = `
     <div class="ov-exname">${t.n}</div>
-    ${imageBlock(t.n)}
     ${lastHtml}
-    <ul class="ov-cues">${t.cues.map(c=>`<li>${c}</li>`).join('')}</ul>
-    ${t.guide ? `<div class="ov-guide"><span>0 — ${t.guide[0]}</span><span>5 — ${t.guide[1]}</span><span>10 — ${t.guide[2]}</span></div>` : ''}
     ${scoreHtml}
     <input type="text" class="ov-note" id="tvNoteInput" placeholder="Note (optional)" value="${r.note.replace(/"/g,'&quot;')}">
+    <div class="ov-divider"></div>
+    <ul class="ov-cues">${t.cues.map(c=>`<li>${c}</li>`).join('')}</ul>
+    ${t.guide ? `<div class="ov-guide"><span>0 — ${t.guide[0]}</span><span>5 — ${t.guide[1]}</span><span>10 — ${t.guide[2]}</span></div>` : ''}
+    ${imageBlock(t.n)}
     <div class="ov-nav">
       ${tvIndex>0 ? '<button type="button" class="secondary" id="tvBack">Back</button>' : ''}
       <button type="button" class="primary" id="tvNext">${tvIndex===TESTS.length-1 ? 'Finish tests' : 'Done — next test'}</button>
@@ -878,6 +1021,7 @@ function renderTestSummary(){
     tOverlay.classList.remove('open');
     updateStats();
     populateChartSelect();
+    showToast('Test results saved ✓');
   });
 }
 
@@ -917,14 +1061,25 @@ function updateStats(){
     document.getElementById('statLast').textContent = '–';
   }
   const initial = tests.find(t=>t.type==='Initial Test');
+  const retestBox = document.getElementById('statRetestBox');
   if(initial){
     const now = new Date(todayStr());
+    const initialDate = new Date(initial.date);
     let weeksOut = 4;
-    while(new Date(initial.date).getTime() + weeksOut*7*86400000 < now.getTime() && weeksOut<16){ weeksOut+=4; }
-    const dueDate = new Date(new Date(initial.date).getTime() + weeksOut*7*86400000);
-    document.getElementById('statRetest').textContent = dueDate.toISOString().slice(0,10);
+    while(initialDate.getTime() + weeksOut*7*86400000 < now.getTime() && weeksOut<16){ weeksOut+=4; }
+    const dueDate = new Date(initialDate.getTime() + weeksOut*7*86400000);
+    const daysUntil = Math.round((dueDate - now)/86400000);
+    let label;
+    if(daysUntil > 0) label = `in ${daysUntil}d`;
+    else if(daysUntil === 0) label = 'Today';
+    else label = `${Math.abs(daysUntil)}d overdue`;
+    document.getElementById('statRetest').textContent = label;
+    retestBox.classList.toggle('overdue', daysUntil < 0);
+    retestBox.querySelector('.lbl').innerHTML = `next retest<br>${dueDate.toISOString().slice(0,10)}`;
   } else {
     document.getElementById('statRetest').textContent = '–';
+    retestBox.classList.remove('overdue');
+    retestBox.querySelector('.lbl').textContent = 'next retest';
   }
   updateWeakLink();
   updateResumeHints();
@@ -1067,6 +1222,7 @@ function renderCalendar(){
 
 
 // ---- History / chart ----
+let trendMode = 'test';
 function populateChartSelect(){
   const sel = document.getElementById('chartTest');
   sel.innerHTML = TESTS.map(t=>`<option value="${t.n}">${t.n}</option>`).join('');
@@ -1075,10 +1231,45 @@ function populateChartSelect(){
   exSel.innerHTML = EXERCISES.map(e=>`<option value="${e.n}">${e.n}</option>`).join('');
   exSel.onchange = drawExerciseChart;
 }
+document.getElementById('trendModeTest').addEventListener('click', ()=>{
+  trendMode = 'test';
+  document.getElementById('trendModeTest').classList.add('active');
+  document.getElementById('trendModeExercise').classList.remove('active');
+  document.getElementById('chartTest').style.display = '';
+  document.getElementById('chartExercise').style.display = 'none';
+  document.getElementById('exerciseMetricToggle').style.display = 'none';
+  document.getElementById('chartLegend').style.display = '';
+  drawChart();
+});
+document.getElementById('trendModeExercise').addEventListener('click', ()=>{
+  trendMode = 'exercise';
+  document.getElementById('trendModeExercise').classList.add('active');
+  document.getElementById('trendModeTest').classList.remove('active');
+  document.getElementById('chartTest').style.display = 'none';
+  document.getElementById('chartExercise').style.display = '';
+  document.getElementById('exerciseMetricToggle').style.display = 'flex';
+  drawExerciseChart();
+});
+let exerciseMetric = 'difficulty';
+document.getElementById('metricDifficulty').addEventListener('click', ()=>{
+  exerciseMetric = 'difficulty';
+  document.getElementById('metricDifficulty').classList.add('active');
+  document.getElementById('metricReps').classList.remove('active');
+  drawExerciseChart();
+});
+document.getElementById('metricReps').addEventListener('click', ()=>{
+  exerciseMetric = 'reps';
+  document.getElementById('metricReps').classList.add('active');
+  document.getElementById('metricDifficulty').classList.remove('active');
+  drawExerciseChart();
+});
 const DIFF_VAL = {Impossible:1, Challenging:2, 'Do-able':3, Easy:4};
 function drawExerciseChart(){
-  const svg = document.getElementById('exChartSvg');
+  if(exerciseMetric === 'reps'){ drawExerciseRepsChart(); return; }
+  const svg = document.getElementById('chartSvg');
   svg.innerHTML = '';
+  document.getElementById('chartLegend').style.display = 'none';
+  document.getElementById('chartLegend').innerHTML = '';
   const name = document.getElementById('chartExercise').value;
   const points = sessions.map(s=>{
     const e = s.entries.find(en=>en.name===name);
@@ -1107,6 +1298,259 @@ function drawExerciseChart(){
     const t=document.createElementNS('http://www.w3.org/2000/svg','text');
     t.setAttribute('x',2); t.setAttribute('y',y(v)+4); t.setAttribute('font-size','9'); t.setAttribute('fill','var(--ink-soft)');
     t.textContent=lbl; svg.appendChild(t);
+  });
+}
+function drawExerciseRepsChart(){
+  const svg = document.getElementById('chartSvg');
+  svg.innerHTML = '';
+  const name = document.getElementById('chartExercise').value;
+  const ex = EXERCISES.find(e=>e.n===name);
+  const legend = document.getElementById('chartLegend');
+  const points = sessions.map(s=>{
+    const e = s.entries.find(en=>en.name===name);
+    if(!e) return null;
+    if(ex.sides){
+      if(e.repsL==null && e.repsR==null) return null;
+      return {date:s.date, l:e.repsL, r:e.repsR};
+    } else {
+      if(e.reps==null) return null;
+      return {date:s.date, v:e.reps};
+    }
+  }).filter(Boolean);
+  if(points.length===0){
+    legend.style.display='none'; legend.innerHTML='';
+    svg.innerHTML = `<text x="10" y="100" font-size="13" fill="var(--ink-soft)">No rep data yet for this exercise.</text>`;
+    return;
+  }
+  const W=640,H=200,pad=28;
+  const maxVal = Math.max(ex.t, ...points.map(p=> ex.sides ? Math.max(p.l||0,p.r||0) : p.v));
+  const x = i => points.length>1 ? pad + i*(W-2*pad)/(points.length-1) : W/2;
+  const y = v => H-pad - (v/maxVal)*(H-2*pad);
+  function line(vals, color){
+    const pts = vals.map((v,i)=> v!=null ? `${x(i)},${y(v)}` : null).filter(Boolean);
+    const poly = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+    poly.setAttribute('points', pts.join(' ')); poly.setAttribute('fill','none'); poly.setAttribute('stroke',color); poly.setAttribute('stroke-width','2');
+    svg.appendChild(poly);
+    vals.forEach((v,i)=>{ if(v!=null){
+      const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',x(i)); c.setAttribute('cy',y(v)); c.setAttribute('r','3.5'); c.setAttribute('fill',color);
+      svg.appendChild(c);
+    }});
+  }
+  const axis = document.createElementNS('http://www.w3.org/2000/svg','line');
+  axis.setAttribute('x1',pad); axis.setAttribute('y1',H-pad); axis.setAttribute('x2',W-pad); axis.setAttribute('y2',H-pad);
+  axis.setAttribute('stroke','var(--line)'); svg.appendChild(axis);
+  [0, Math.round(maxVal/2), maxVal].forEach(v=>{
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',2); t.setAttribute('y',y(v)+4); t.setAttribute('font-size','9'); t.setAttribute('fill','var(--ink-soft)');
+    t.textContent=v; svg.appendChild(t);
+  });
+  if(ex.sides){
+    line(points.map(p=>p.l), '#7B8FA3');
+    line(points.map(p=>p.r), '#A96A2E');
+    legend.style.display='';
+    legend.innerHTML = `<span><span class="legend-dot" style="background:#7B8FA3"></span>Left</span><span><span class="legend-dot" style="background:#A96A2E"></span>Right</span>`;
+  } else {
+    legend.style.display='none'; legend.innerHTML='';
+    line(points.map(p=>p.v), '#17304A');
+  }
+}
+
+// ---- Notes ----
+function collectAllNotes(){
+  const items = [];
+  sessions.forEach(s=>{
+    if(s.note) items.push({date:s.date, label:'Session note', text:s.note, cat:'session'});
+    s.entries.forEach(e=>{ if(e.note) items.push({date:s.date, label:e.name, text:e.note, cat:'exercise'}); });
+  });
+  tests.forEach(t=>{
+    t.scores.forEach(sc=>{ if(sc.note) items.push({date:t.date, label:sc.name+' (test)', text:sc.note, cat:'test'}); });
+  });
+  items.sort((a,b)=> b.date.localeCompare(a.date));
+  return items;
+}
+let notesCategory = 'all';
+document.querySelectorAll('#notesCatToggle button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    notesCategory = b.dataset.cat;
+    document.querySelectorAll('#notesCatToggle button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    renderNotes();
+  });
+});
+function renderNotes(){
+  const box = document.getElementById('notesList');
+  const filterEl = document.getElementById('notesFilter');
+  const filter = (filterEl.value||'').toLowerCase().trim();
+  const all = collectAllNotes();
+  let filtered = notesCategory==='all' ? all : all.filter(n=>n.cat===notesCategory);
+  if(filter) filtered = filtered.filter(n => n.label.toLowerCase().includes(filter) || n.text.toLowerCase().includes(filter));
+  if(filtered.length===0){
+    box.innerHTML = `<p class="empty">${all.length===0 ? 'No notes yet — notes you leave on exercises, tests, or whole sessions will show up here.' : 'No notes match that search.'}</p>`;
+    return;
+  }
+  box.innerHTML = filtered.map(n=>`<div class="hist-item"><div class="hist-item-main"><div class="hist-date">${n.date} — <span style="color:var(--forest); font-weight:600;">${n.label}</span></div><div class="hist-meta">${n.text}</div></div></div>`).join('');
+}
+document.getElementById('notesFilter').addEventListener('input', renderNotes);
+
+// ---- Overview: scorecard + overall trend ----
+function latestTwoTestValues(name){
+  const vals = [];
+  for(let i=tests.length-1; i>=0 && vals.length<2; i--){
+    const s = tests[i].scores.find(sc=>sc.name===name);
+    if(!s) continue;
+    let v = null;
+    if(s.v!=null) v = s.v;
+    else if(s.l!=null && s.r!=null) v = (s.l+s.r)/2;
+    else if(s.l!=null) v = s.l;
+    else if(s.r!=null) v = s.r;
+    if(v!=null) vals.push({date:tests[i].date, v});
+  }
+  return vals;
+}
+function latestTwoExerciseValues(name){
+  const vals = [];
+  for(let i=sessions.length-1; i>=0 && vals.length<2; i--){
+    const e = sessions[i].entries.find(en=>en.name===name);
+    if(e && e.difficulty) vals.push({date:sessions[i].date, v:DIFF_VAL[e.difficulty], label:e.difficulty});
+  }
+  return vals;
+}
+function trendArrow(diff, showNum){
+  if(diff > 0.4) return `<span class="trend up">▲${showNum?' '+diff.toFixed(1):''}</span>`;
+  if(diff < -0.4) return `<span class="trend down">▼${showNum?' '+Math.abs(diff).toFixed(1):''}</span>`;
+  return `<span class="trend flat">—</span>`;
+}
+function renderScorecard(){
+  const testBox = document.getElementById('scorecardTests');
+  const testItems = TESTS.filter(t=>!t.scoreless).map(t=>{
+    const vals = latestTwoTestValues(t.n);
+    if(vals.length===0) return null;
+    const trend = vals.length>1 ? trendArrow(vals[0].v - vals[1].v, true) : '<span class="trend flat">—</span>';
+    return `<div class="scorecard-item"><div class="scorecard-name">${t.n}</div><div class="scorecard-val"><span class="v">${vals[0].v.toFixed(vals[0].v%1?1:0)}</span>${trend}</div></div>`;
+  }).filter(Boolean);
+  testBox.innerHTML = testItems.length ? testItems.join('') : '<div class="scorecard-empty">No tests logged yet.</div>';
+
+  const exBox = document.getElementById('scorecardExercises');
+  const exItems = EXERCISES.map(ex=>{
+    const vals = latestTwoExerciseValues(ex.n);
+    if(vals.length===0) return null;
+    const trend = vals.length>1 ? trendArrow(vals[0].v - vals[1].v, false) : '<span class="trend flat">—</span>';
+    return `<div class="scorecard-item"><div class="scorecard-name">${ex.n}</div><div class="scorecard-val"><span class="v">${vals[0].label}</span>${trend}</div></div>`;
+  }).filter(Boolean);
+  exBox.innerHTML = exItems.length ? exItems.join('') : '<div class="scorecard-empty">No sessions logged yet.</div>';
+}
+function drawOverallTrend(){
+  const svg = document.getElementById('overallChartSvg');
+  svg.innerHTML = '';
+  const points = sessions.map(s=>{
+    const vals = s.entries.filter(e=>e.difficulty).map(e=>DIFF_VAL[e.difficulty]);
+    if(vals.length===0) return null;
+    return {date:s.date, val: vals.reduce((a,b)=>a+b,0)/vals.length};
+  }).filter(Boolean);
+  if(points.length===0){
+    svg.innerHTML = `<text x="10" y="100" font-size="13" fill="var(--ink-soft)">No sessions with ratings yet.</text>`;
+    return;
+  }
+  const W=640,H=200,pad=28;
+  const x = i => points.length>1 ? pad + i*(W-2*pad)/(points.length-1) : W/2;
+  const y = v => H-pad - (v-1)*(H-2*pad)/3;
+  const pts = points.map((p,i)=>`${x(i)},${y(p.val)}`).join(' ');
+  const poly = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+  poly.setAttribute('points', pts); poly.setAttribute('fill','none'); poly.setAttribute('stroke','#17304A'); poly.setAttribute('stroke-width','2');
+  svg.appendChild(poly);
+  points.forEach((p,i)=>{
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',x(i)); c.setAttribute('cy',y(p.val)); c.setAttribute('r','3.5'); c.setAttribute('fill','#17304A');
+    svg.appendChild(c);
+  });
+  const axis = document.createElementNS('http://www.w3.org/2000/svg','line');
+  axis.setAttribute('x1',pad); axis.setAttribute('y1',H-pad); axis.setAttribute('x2',W-pad); axis.setAttribute('y2',H-pad);
+  axis.setAttribute('stroke','var(--line)'); svg.appendChild(axis);
+  [[1,'Hard'],[2,'Tough'],[3,'OK'],[4,'Easy']].forEach(([v,lbl])=>{
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',2); t.setAttribute('y',y(v)+4); t.setAttribute('font-size','9'); t.setAttribute('fill','var(--ink-soft)');
+    t.textContent=lbl; svg.appendChild(t);
+  });
+}
+function drawOverallTestTrend(){
+  const svg = document.getElementById('overallTestChartSvg');
+  svg.innerHTML = '';
+  const points = tests.map(t=>{
+    const vals = t.scores.map(sc=>{
+      if(sc.v!=null) return sc.v;
+      if(sc.l!=null && sc.r!=null) return (sc.l+sc.r)/2;
+      if(sc.l!=null) return sc.l;
+      if(sc.r!=null) return sc.r;
+      return null;
+    }).filter(v=>v!=null);
+    if(vals.length===0) return null;
+    return {date:t.date, val: vals.reduce((a,b)=>a+b,0)/vals.length};
+  }).filter(Boolean);
+  if(points.length===0){
+    svg.innerHTML = `<text x="10" y="100" font-size="13" fill="var(--ink-soft)">No scored tests yet.</text>`;
+    return;
+  }
+  const W=640,H=200,pad=28;
+  const x = i => points.length>1 ? pad + i*(W-2*pad)/(points.length-1) : W/2;
+  const y = v => H-pad - (v-1)*(H-2*pad)/9;
+  const pts = points.map((p,i)=>`${x(i)},${y(p.val)}`).join(' ');
+  const poly = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+  poly.setAttribute('points', pts); poly.setAttribute('fill','none'); poly.setAttribute('stroke','#17304A'); poly.setAttribute('stroke-width','2');
+  svg.appendChild(poly);
+  points.forEach((p,i)=>{
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',x(i)); c.setAttribute('cy',y(p.val)); c.setAttribute('r','3.5'); c.setAttribute('fill','#17304A');
+    svg.appendChild(c);
+  });
+  const axis = document.createElementNS('http://www.w3.org/2000/svg','line');
+  axis.setAttribute('x1',pad); axis.setAttribute('y1',H-pad); axis.setAttribute('x2',W-pad); axis.setAttribute('y2',H-pad);
+  axis.setAttribute('stroke','var(--line)'); svg.appendChild(axis);
+  [1,10].forEach(v=>{
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',2); t.setAttribute('y',y(v)+4); t.setAttribute('font-size','10'); t.setAttribute('fill','var(--ink-soft)');
+    t.textContent=v; svg.appendChild(t);
+  });
+}
+function drawWeeklyBar(){
+  const svg = document.getElementById('weeklyBarSvg');
+  svg.innerHTML = '';
+  if(sessions.length===0){
+    svg.innerHTML = `<text x="10" y="80" font-size="13" fill="var(--ink-soft)">No sessions logged yet.</text>`;
+    return;
+  }
+  const WEEKS = 8;
+  const today = new Date(todayStr());
+  const startOfWeek = d => { const dt = new Date(d); dt.setHours(0,0,0,0); dt.setDate(dt.getDate() - dt.getDay()); return dt; };
+  const thisWeekStart = startOfWeek(today);
+  const buckets = [];
+  for(let w=WEEKS-1; w>=0; w--){
+    const start = new Date(thisWeekStart.getTime() - w*7*86400000);
+    const end = new Date(start.getTime() + 6*86400000);
+    const count = sessions.filter(s=>{ const d=new Date(s.date); return d>=start && d<=end; }).length;
+    buckets.push({start, count});
+  }
+  const W=640,H=160,pad=22;
+  const maxCount = Math.max(4, ...buckets.map(b=>b.count));
+  const slot = (W-2*pad)/buckets.length;
+  const barW = slot*0.6;
+  buckets.forEach((b,i)=>{
+    const x = pad + i*slot + (slot-barW)/2;
+    const h = (b.count/maxCount)*(H-2*pad-14);
+    const y = H-pad-h;
+    const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    rect.setAttribute('x',x); rect.setAttribute('y',y); rect.setAttribute('width',barW); rect.setAttribute('height',Math.max(h,1));
+    rect.setAttribute('rx','3'); rect.setAttribute('fill', b.count>=4 ? '#4E7C63' : (b.count>0 ? '#A96A2E' : 'var(--line)'));
+    svg.appendChild(rect);
+    if(b.count>0){
+      const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x', x+barW/2); t.setAttribute('y', y-4); t.setAttribute('font-size','10'); t.setAttribute('fill','var(--ink-soft)'); t.setAttribute('text-anchor','middle');
+      t.textContent = b.count; svg.appendChild(t);
+    }
+    const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x', x+barW/2); lbl.setAttribute('y', H-6); lbl.setAttribute('font-size','8'); lbl.setAttribute('fill','var(--ink-soft)'); lbl.setAttribute('text-anchor','middle');
+    lbl.textContent = `${b.start.getMonth()+1}/${b.start.getDate()}`;
+    svg.appendChild(lbl);
   });
 }
 function drawChart(){
@@ -1198,6 +1642,11 @@ function renderAsymmetry(){
 function renderHistory(){
   renderCalendar();
   renderAsymmetry();
+  renderScorecard();
+  drawOverallTrend();
+  drawOverallTestTrend();
+  drawWeeklyBar();
+  renderNotes();
   const sh = document.getElementById('sessionHistory');
   if(sessions.length===0){ sh.innerHTML='<p class="empty">No sessions logged yet.</p>'; }
   else {
@@ -1282,8 +1731,7 @@ function renderHistory(){
     }));
   }
   populateChartSelect();
-  drawChart();
-  drawExerciseChart();
+  if(trendMode==='test') drawChart(); else drawExerciseChart();
 }
 
 let editingSessionIdx = null, deletingSessionIdx = null, editingTestIdx = null, deletingTestIdx = null;
@@ -1329,6 +1777,7 @@ async function doExportJson(){
   if(saved){
     try{ localStorage.setItem('smm_last_export', todayStr()); }catch(e){}
     updateExportReminder();
+    showToast('Backup exported ✓');
   }
 }
 document.getElementById('exportBtn').addEventListener('click', doExportJson);
@@ -1367,6 +1816,7 @@ document.getElementById('importConfirmBtn').addEventListener('click', ()=>{
   pendingImportData = null;
   document.getElementById('importConfirmBox').style.display = 'none';
   updateStats(); populateChartSelect(); renderHistory();
+  showToast('Data imported ✓');
 });
 document.getElementById('importCancelBtn').addEventListener('click', ()=>{
   pendingImportData = null;
@@ -1428,5 +1878,6 @@ document.getElementById('exportTestsCsv').addEventListener('click', ()=>{
 updateStats();
 populateChartSelect();
 </script>
+<div class="toast" id="toastEl"></div>
 </body>
 </html>
