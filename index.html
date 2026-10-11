@@ -26,6 +26,7 @@
   --forest:#DCE4EE; --line:#333C48;
 }
 *{box-sizing:border-box;}
+button, input, select, label, .cal-day, summary{touch-action:manipulation;}
 body{
   margin:0; background-color:var(--bg); color:var(--ink); font-family:var(--font-body);
   background-image:repeating-linear-gradient(to bottom, transparent, transparent 26px, rgba(23,48,74,0.05) 27px);
@@ -57,7 +58,7 @@ nav.tabs button.active{color:var(--forest); border-bottom-color:var(--gold);}
 label.small{font-size:0.8rem; color:var(--ink-soft);}
 input[type=date], select, input[type=number], input[type=text], textarea{
   font-family:var(--font-body); border:1px solid var(--line); background:var(--bg-panel); color:var(--ink);
-  border-radius:8px; padding:7px 9px; font-size:0.9rem;
+  border-radius:8px; padding:8px 10px; font-size:16px;
 }
 input:focus, select:focus, textarea:focus{outline:2px solid var(--gold); outline-offset:1px;}
 .ex-row, .test-row{border-top:1px solid var(--line); padding:14px 0; display:grid; grid-template-columns:1fr; gap:8px;}
@@ -77,7 +78,7 @@ input:focus, select:focus, textarea:focus{outline:2px solid var(--gold); outline
 .note-input{flex:1; min-width:140px;}
 .test-name{font-weight:600; font-size:0.96rem;}
 .score-inputs{display:flex; gap:10px; align-items:center;}
-.score-inputs input[type=number]{width:58px;}
+.score-inputs input[type=number]{width:66px;}
 .score-inputs label{font-size:0.75rem; color:var(--ink-soft); margin-right:2px;}
 .save-bar{position:sticky; bottom:0; background:var(--bg); padding:14px 0 4px; border-top:1px solid var(--line); margin-top:20px;}
 button.primary{
@@ -141,11 +142,15 @@ select#chartExercise{margin-bottom:14px;}
 .ov-reps-block{margin-bottom:16px;}
 .ov-reps-block > label{font-size:0.8rem; color:var(--ink-soft); display:block; margin-bottom:6px;}
 .ov-reps-block .target{color:var(--ink-soft); font-weight:400;}
-.ov-reps-row{display:flex; gap:14px; flex-wrap:wrap;}
+.ov-reps-row{display:flex; gap:10px; flex-wrap:nowrap;}
+.ov-reps-row .ov-reps-field{flex:1; min-width:0; flex-wrap:wrap; justify-content:center; gap:2px 4px; padding:6px 4px; border-radius:18px;}
+.ov-reps-row .ov-reps-field .side-lbl{width:100%; text-align:center; padding-left:0;}
+.ov-reps-row .ov-reps-field button{width:40px; height:40px;}
+.ov-reps-row .ov-reps-field input{width:40px; min-width:0; flex:1; max-width:56px;}
 .ov-reps-field{display:flex; align-items:center; gap:8px; background:var(--bg-panel); border:1px solid var(--line); border-radius:20px; padding:4px 6px;}
 .ov-reps-field .side-lbl{font-size:0.78rem; color:var(--ink-soft); padding-left:6px;}
-.ov-reps-field button{width:26px; height:26px; border-radius:50%; border:1px solid var(--line); background:var(--bg); color:var(--ink); font-size:1rem; line-height:1; cursor:pointer;}
-.ov-reps-field input{width:38px; text-align:center; border:none; background:none; font-family:var(--font-head); font-weight:600; font-size:1.05rem; color:var(--forest); -moz-appearance:textfield;}
+.ov-reps-field button{width:44px; height:44px; flex:none; border-radius:50%; border:1px solid var(--line); background:var(--bg); color:var(--ink); font-size:1.4rem; line-height:1; cursor:pointer;}
+.ov-reps-field input{width:52px; font-size:1.25rem !important; text-align:center; border:none; background:none; font-family:var(--font-head); font-weight:600; color:var(--forest); -moz-appearance:textfield;}
 .ov-reps-field input::-webkit-outer-spin-button, .ov-reps-field input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0;}
 .pose-wrap{width:120px; height:120px; margin:0 auto 16px; background:var(--bg-panel); border:1px solid var(--line); border-radius:6px; padding:6px;}
 .pose-svg{width:100%; height:100%; display:block;}
@@ -197,6 +202,10 @@ select#chartExercise{margin-bottom:14px;}
 .sum-title{font-family:var(--font-head); font-weight:600; font-size:1.5rem; color:var(--forest); margin:0 0 16px;}
 .sum-row{display:flex; justify-content:space-between; gap:10px; border-top:1px solid var(--line); padding:10px 0; font-size:0.88rem;}
 .sum-row:first-of-type{border-top:none;}
+.sum-row.tappable{cursor:pointer; align-items:center; min-height:44px;}
+.sum-row.tappable:active{background:var(--bg-panel);}
+.sum-hint{font-size:0.78rem; color:var(--ink-soft); margin:-6px 0 8px;}
+input.note-input, input.edit-note, input.edit-date, select.edit-type{font-size:16px;}
 .sum-chip{font-size:0.72rem; padding:3px 9px; border-radius:12px; color:#fff; white-space:nowrap;}
 .sum-chip.Easy{background:var(--easy);} .sum-chip.Do-able{background:var(--doable);}
 .sum-chip.Challenging{background:var(--challenge);} .sum-chip.Impossible{background:var(--impossible);}
@@ -218,6 +227,7 @@ select#chartExercise{margin-bottom:14px;}
 
 /* Calendar */
 .cal-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
+.cal-nav-right{display:flex; gap:6px;}
 .cal-header .secondary{padding:5px 12px;}
 .cal-label{font-family:var(--font-head); font-weight:600; font-size:1rem; color:var(--forest);}
 .cal-dow{display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:0.7rem; color:var(--ink-soft); margin-bottom:4px;}
@@ -255,6 +265,7 @@ svg.chart{width:100%; height:200px; overflow:visible;}
   <nav class="tabs">
     <button data-tab="log" class="active">Log a Session</button>
     <button data-tab="tests">Tests</button>
+    <button data-tab="consistency">Consistency</button>
     <button data-tab="history">History</button>
   </nav>
 
@@ -327,6 +338,29 @@ svg.chart{width:100%; height:200px; overflow:visible;}
     </div>
   </div>
 
+  <section id="tab-consistency" class="panel">
+    <div class="stats" style="margin-bottom:16px;">
+      <div class="stat"><div class="num" id="calStreak">0</div><div class="lbl">day streak</div></div>
+      <div class="stat"><div class="num" id="calLongest">0</div><div class="lbl">longest streak</div></div>
+      <div class="stat"><div class="num" id="calWeek">0</div><div class="lbl">this week <span class="wk-target">/ 4 target</span></div></div>
+    </div>
+    <div class="week-progress"><div class="week-progress-fill" id="weekFill"></div></div>
+    <p class="hint" id="weekMsg" style="margin:0 0 20px;"></p>
+    <h4 class="hist-subhead" style="margin-top:0;">Calendar</h4>
+    <div class="cal-header">
+      <button type="button" class="secondary" id="calPrev">‹</button>
+      <div class="cal-label" id="calLabel"></div>
+      <div class="cal-nav-right">
+        <button type="button" class="secondary" id="calNext">›</button>
+        <button type="button" class="secondary" id="calToday">Today</button>
+      </div>
+    </div>
+    <div class="cal-dow"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+    <div class="cal-grid" id="calGrid"></div>
+    <h4 class="hist-subhead">Sessions per week</h4>
+    <svg class="chart" id="weeklyBarSvg" viewBox="0 0 640 160" preserveAspectRatio="none" style="height:150px;"></svg>
+  </section>
+
   <section id="tab-history" class="panel">
     <details class="hist-section" open>
       <summary>Overview</summary>
@@ -346,29 +380,6 @@ svg.chart{width:100%; height:200px; overflow:visible;}
         <h4 class="hist-subhead">Overall test trend</h4>
         <p class="hint" style="margin:0 0 10px;">Average score across every scored test, per test date — the same "generally improving" line for your tests.</p>
         <svg class="chart" id="overallTestChartSvg" viewBox="0 0 640 200" preserveAspectRatio="none"></svg>
-      </div>
-    </details>
-
-    <details class="hist-section">
-      <summary>Consistency</summary>
-      <div class="hist-section-body">
-        <div class="stats" style="margin-bottom:16px;">
-          <div class="stat"><div class="num" id="calStreak">0</div><div class="lbl">day streak</div></div>
-          <div class="stat"><div class="num" id="calLongest">0</div><div class="lbl">longest streak</div></div>
-          <div class="stat"><div class="num" id="calWeek">0</div><div class="lbl">this week <span class="wk-target">/ 4 target</span></div></div>
-        </div>
-        <div class="week-progress"><div class="week-progress-fill" id="weekFill"></div></div>
-        <p class="hint" id="weekMsg" style="margin:0 0 20px;"></p>
-        <h4 class="hist-subhead">Sessions per week</h4>
-        <svg class="chart" id="weeklyBarSvg" viewBox="0 0 640 160" preserveAspectRatio="none" style="height:150px;"></svg>
-        <h4 class="hist-subhead">Calendar</h4>
-        <div class="cal-header">
-          <button type="button" class="secondary" id="calPrev">‹</button>
-          <div class="cal-label" id="calLabel"></div>
-          <button type="button" class="secondary" id="calNext">›</button>
-        </div>
-        <div class="cal-dow"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
-        <div class="cal-grid" id="calGrid"></div>
       </div>
     </details>
 
@@ -659,6 +670,7 @@ document.querySelectorAll('nav.tabs button').forEach(b=>{
     b.classList.add('active');
     document.getElementById('tab-'+b.dataset.tab).classList.add('active');
     if(b.dataset.tab==='history') renderHistory();
+    if(b.dataset.tab==='consistency'){ renderCalendar(); drawWeeklyBar(); }
   });
 });
 
@@ -678,6 +690,25 @@ function saveSessionProgress(){
 }
 function clearSessionProgress(){ try{ localStorage.removeItem('smm_session_progress'); }catch(e){} }
 
+// ---- Screen wake lock: keep the display on while a session/tests overlay is open ----
+let wakeLock = null;
+async function requestWakeLock(){
+  try{
+    if('wakeLock' in navigator){
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', ()=>{ wakeLock = null; });
+    }
+  }catch(e){ /* unsupported, low battery, etc — fail silently */ }
+}
+function releaseWakeLock(){
+  if(wakeLock){ wakeLock.release().catch(()=>{}); wakeLock = null; }
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'visible' && (overlay.classList.contains('open') || tOverlay.classList.contains('open'))){
+    requestWakeLock();
+  }
+});
+
 document.getElementById('startSession').addEventListener('click', ()=>{
   ovResponses = newResponses();
   ovIndex = 0;
@@ -685,6 +716,7 @@ document.getElementById('startSession').addEventListener('click', ()=>{
   ovSummary.style.display='none';
   ovBody.style.display='block';
   renderStep();
+  requestWakeLock();
 });
 document.getElementById('resumeSessionBtn').addEventListener('click', ()=>{
   try{
@@ -698,6 +730,7 @@ document.getElementById('resumeSessionBtn').addEventListener('click', ()=>{
   ovSummary.style.display='none';
   ovBody.style.display='block';
   renderStep();
+  requestWakeLock();
 });
 document.getElementById('discardSessionBtn').addEventListener('click', ()=>{
   clearSessionProgress();
@@ -707,6 +740,7 @@ document.getElementById('ovClose').addEventListener('click', ()=>{
   saveSessionProgress();
   overlay.classList.remove('open');
   updateResumeHints();
+  releaseWakeLock();
 });
 
 function lastExerciseRecord(name){
@@ -840,11 +874,12 @@ function renderSummary(){
   ovSummary.style.display='block';
   ovSummary.innerHTML = `
     <div class="sum-title">Session summary</div>
+    <div class="sum-hint">Tap an exercise to edit it</div>
     ${EXERCISES.map((ex,i)=>{
       const r = ovResponses[i];
       const chip = r.difficulty ? `<span class="sum-chip ${r.difficulty}">${r.difficulty}</span>` : `<span class="sum-chip none">skipped</span>`;
       const repsTxt = ex.sides ? `L ${r.repsL??'–'} / R ${r.repsR??'–'}` : (r.reps!=null?`${r.reps} reps`:'');
-      return `<div class="sum-row"><span>${ex.n} — ${repsTxt}${r.note?' — '+r.note:''}</span>${chip}</div>`;
+      return `<div class="sum-row tappable" data-i="${i}"><span>${ex.n} — ${repsTxt}${r.note?' — '+r.note:''}</span>${chip}</div>`;
     }).join('')}
     <label class="small" style="display:block; margin:18px 0 20px;">Overall note for this session<br>
       <input type="text" class="note-input" id="ovOverallNote" style="width:100%; margin-top:6px;" placeholder="Optional"></label>
@@ -856,6 +891,9 @@ function renderSummary(){
   document.getElementById('ovEdit').addEventListener('click', ()=>{
     ovSummary.style.display='none'; ovBody.style.display='block'; ovIndex=EXERCISES.length-1; renderStep();
   });
+  ovSummary.querySelectorAll('.sum-row.tappable').forEach(row=>row.addEventListener('click', ()=>{
+    ovSummary.style.display='none'; ovBody.style.display='block'; ovIndex=+row.dataset.i; saveSessionProgress(); renderStep();
+  }));
   document.getElementById('ovSave').addEventListener('click', ()=>{
     const date = document.getElementById('sessionDate').value || todayStr();
     const note = document.getElementById('ovOverallNote').value;
@@ -868,6 +906,7 @@ function renderSummary(){
     overlay.classList.remove('open');
     updateStats();
     showToast('Session saved ✓');
+    releaseWakeLock();
   });
 }
 
@@ -894,6 +933,7 @@ document.getElementById('startTests').addEventListener('click', ()=>{
   tvSummary.style.display='none';
   tvBody.style.display='block';
   renderTestStep();
+  requestWakeLock();
 });
 document.getElementById('resumeTestsBtn').addEventListener('click', ()=>{
   try{
@@ -908,6 +948,7 @@ document.getElementById('resumeTestsBtn').addEventListener('click', ()=>{
   tvSummary.style.display='none';
   tvBody.style.display='block';
   renderTestStep();
+  requestWakeLock();
 });
 document.getElementById('discardTestsBtn').addEventListener('click', ()=>{
   clearTestProgress();
@@ -917,6 +958,7 @@ document.getElementById('tvClose').addEventListener('click', ()=>{
   saveTestProgress();
   tOverlay.classList.remove('open');
   updateResumeHints();
+  releaseWakeLock();
 });
 
 function scoreRow(label, key, r){
@@ -991,13 +1033,14 @@ function renderTestSummary(){
   tvSummary.style.display='block';
   tvSummary.innerHTML = `
     <div class="sum-title">Test results</div>
+    <div class="sum-hint">Tap a test to edit it</div>
     ${TESTS.map((t,i)=>{
       const r = tvResponses[i];
       let val;
       if(t.scoreless) val = r.note ? '<span class="sum-chip none">noted</span>' : '<span class="sum-chip none">skipped</span>';
       else if(t.sides) val = `<span class="sum-chip Do-able">L ${r.l??'–'} / R ${r.r??'–'}</span>`;
       else val = `<span class="sum-chip Do-able">${r.v??'–'}</span>`;
-      return `<div class="sum-row"><span>${t.n}${r.note?' — '+r.note:''}</span>${val}</div>`;
+      return `<div class="sum-row tappable" data-i="${i}"><span>${t.n}${r.note?' — '+r.note:''}</span>${val}</div>`;
     }).join('')}
     <div class="ov-nav" style="margin-top:18px;">
       <button type="button" class="secondary" id="tvEdit">Back to tests</button>
@@ -1007,6 +1050,9 @@ function renderTestSummary(){
   document.getElementById('tvEdit').addEventListener('click', ()=>{
     tvSummary.style.display='none'; tvBody.style.display='block'; tvIndex=TESTS.length-1; renderTestStep();
   });
+  tvSummary.querySelectorAll('.sum-row.tappable').forEach(row=>row.addEventListener('click', ()=>{
+    tvSummary.style.display='none'; tvBody.style.display='block'; tvIndex=+row.dataset.i; if(typeof saveTestProgress==='function') saveTestProgress(); renderTestStep();
+  }));
   document.getElementById('tvSave').addEventListener('click', ()=>{
     const date = document.getElementById('testDate').value || todayStr();
     const type = document.getElementById('testType').value;
@@ -1022,6 +1068,7 @@ function renderTestSummary(){
     updateStats();
     populateChartSelect();
     showToast('Test results saved ✓');
+    releaseWakeLock();
   });
 }
 
@@ -1186,6 +1233,11 @@ showTip();
 let calMonth = new Date(new Date(todayStr()).getFullYear(), new Date(todayStr()).getMonth(), 1);
 document.getElementById('calPrev').addEventListener('click', ()=>{ calMonth.setMonth(calMonth.getMonth()-1); renderCalendar(); });
 document.getElementById('calNext').addEventListener('click', ()=>{ calMonth.setMonth(calMonth.getMonth()+1); renderCalendar(); });
+document.getElementById('calToday').addEventListener('click', ()=>{
+  const t = new Date(todayStr());
+  calMonth = new Date(t.getFullYear(), t.getMonth(), 1);
+  renderCalendar();
+});
 
 function renderCalendar(){
   const dates = new Set(sessions.map(s=>s.date));
